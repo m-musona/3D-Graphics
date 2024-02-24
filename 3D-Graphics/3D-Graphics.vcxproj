@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{4990dd7f-57ae-4814-9d24-5337b9d976a0}</ProjectGuid>
+    <RootNamespace>My3DGraphics</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>src/vendors;</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\SDL;$(SolutionDir)Dependencies\GLFW\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2test.lib;SDL2_image.lib;glfw3.lib;glfw3_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>src/vendors;</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\SDL;$(SolutionDir)Dependencies\GLFW\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2test.lib;SDL2_image.lib;glfw3.lib;glfw3_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>src/vendors;</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\SDL;$(SolutionDir)Dependencies\GLFW\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2test.lib;SDL2_image.lib;glfw3.lib;glfw3_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>src/vendors;</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\SDL;$(SolutionDir)Dependencies\GLFW\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2test.lib;SDL2_image.lib;glfw3.lib;glfw3_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Actor.cpp" />
+    <ClCompile Include="src\Actors\CameraActor.cpp" />
+    <ClCompile Include="src\Actors\PlaneActor.cpp" />
+    <ClCompile Include="src\Application.cpp" />
+    <ClCompile Include="src\Component.cpp" />
+    <ClCompile Include="src\Components\CircleCollisionComponent.cpp" />
+    <ClCompile Include="src\Components\MeshComponent.cpp" />
+    <ClCompile Include="src\Components\MoveComponent.cpp" />
+    <ClCompile Include="src\Components\SpriteComponent.cpp" />
+    <ClCompile Include="src\Game.cpp" />
+    <ClCompile Include="src\Renderer\Mesh.cpp" />
+    <ClCompile Include="src\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\Renderer\Shader.cpp" />
+    <ClCompile Include="src\Renderer\Texture.cpp" />
+    <ClCompile Include="src\Renderer\VertexArray.cpp" />
+    <ClCompile Include="src\vendors\GameProgCpp\Math.cpp" />
+    <ClCompile Include="src\vendors\GameProgCpp\Random.cpp" />
+    <ClCompile Include="src\vendors\glad\src\glad.c" />
+    <ClCompile Include="src\vendors\stb_image\stb_image.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Actor.h" />
+    <ClInclude Include="src\Actors\CameraActor.h" />
+    <ClInclude Include="src\Actors\PlaneActor.h" />
+    <ClInclude Include="src\Component.h" />
+    <ClInclude Include="src\Components\CircleCollisionComponent.h" />
+    <ClInclude Include="src\Components\MeshComponent.h" />
+    <ClInclude Include="src\Components\MoveComponent.h" />
+    <ClInclude Include="src\Components\SpriteComponent.h" />
+    <ClInclude Include="src\Game.h" />
+    <ClInclude Include="src\Renderer\Mesh.h" />
+    <ClInclude Include="src\Renderer\Renderer.h" />
+    <ClInclude Include="src\Renderer\Shader.h" />
+    <ClInclude Include="src\Renderer\Texture.h" />
+    <ClInclude Include="src\Renderer\VertexArray.h" />
+    <ClInclude Include="src\vendors\GameProgCpp\Math.h" />
+    <ClInclude Include="src\vendors\GameProgCpp\Random.h" />
+    <ClInclude Include="src\vendors\glad\glad.h" />
+    <ClInclude Include="src\vendors\KHR\khrplatform.h" />
+    <ClInclude Include="src\vendors\RapidJSON\allocators.h" />
+    <ClInclude Include="src\vendors\RapidJSON\cursorstreamwrapper.h" />
+    <ClInclude Include="src\vendors\RapidJSON\document.h" />
+    <ClInclude Include="src\vendors\RapidJSON\encodedstream.h" />
+    <ClInclude Include="src\vendors\RapidJSON\encodings.h" />
+    <ClInclude Include="src\vendors\RapidJSON\error\en.h" />
+    <ClInclude Include="src\vendors\RapidJSON\error\error.h" />
+    <ClInclude Include="src\vendors\RapidJSON\filereadstream.h" />
+    <ClInclude Include="src\vendors\RapidJSON\filewritestream.h" />
+    <ClInclude Include="src\vendors\RapidJSON\fwd.h" />
+    <ClInclude Include="src\vendors\RapidJSON\internal\biginteger.h" />
+    <ClInclude Include="src\vendors\RapidJSON\internal\diyfp.h" />
+    <ClInclude Include="src\vendors\RapidJSON\internal\dtoa.h" />
+    <ClInclude Include="src\vendors\RapidJSON\internal\ieee754.h" />
+    <ClInclude Include="src\vendors\RapidJSON\internal\itoa.h" />
+    <ClInclude Include="src\vendors\RapidJSON\internal\meta.h" />
+    <ClInclude Include="src\vendors\RapidJSON\internal\pow10.h" />
+    <ClInclude Include="src\vendors\RapidJSON\internal\regex.h" />
+    <ClInclude Include="src\vendors\RapidJSON\internal\stack.h" />
+    <ClInclude Include="src\vendors\RapidJSON\internal\strfunc.h" />
+    <ClInclude Include="src\vendors\RapidJSON\internal\strtod.h" />
+    <ClInclude Include="src\vendors\RapidJSON\internal\swap.h" />
+    <ClInclude Include="src\vendors\RapidJSON\istreamwrapper.h" />
+    <ClInclude Include="src\vendors\RapidJSON\memorybuffer.h" />
+    <ClInclude Include="src\vendors\RapidJSON\memorystream.h" />
+    <ClInclude Include="src\vendors\RapidJSON\msinttypes\inttypes.h" />
+    <ClInclude Include="src\vendors\RapidJSON\msinttypes\stdint.h" />
+    <ClInclude Include="src\vendors\RapidJSON\ostreamwrapper.h" />
+    <ClInclude Include="src\vendors\RapidJSON\pointer.h" />
+    <ClInclude Include="src\vendors\RapidJSON\prettywriter.h" />
+    <ClInclude Include="src\vendors\RapidJSON\rapidjson.h" />
+    <ClInclude Include="src\vendors\RapidJSON\reader.h" />
+    <ClInclude Include="src\vendors\RapidJSON\schema.h" />
+    <ClInclude Include="src\vendors\RapidJSON\stream.h" />
+    <ClInclude Include="src\vendors\RapidJSON\stringbuffer.h" />
+    <ClInclude Include="src\vendors\RapidJSON\writer.h" />
+    <ClInclude Include="src\vendors\SDL\begin_code.h" />
+    <ClInclude Include="src\vendors\SDL\close_code.h" />
+    <ClInclude Include="src\vendors\SDL\SDL.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_assert.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_atomic.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_audio.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_bits.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_blendmode.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_clipboard.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_config.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_cpuinfo.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_egl.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_endian.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_error.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_events.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_filesystem.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_gamecontroller.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_gesture.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_guid.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_haptic.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_hidapi.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_hints.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_image.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_joystick.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_keyboard.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_keycode.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_loadso.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_locale.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_log.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_main.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_messagebox.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_metal.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_misc.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_mouse.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_mutex.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_name.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_opengl.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_opengles.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_opengles2.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_opengles2_gl2.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_opengles2_gl2ext.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_opengles2_gl2platform.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_opengles2_khrplatform.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_opengl_glext.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_pixels.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_platform.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_power.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_quit.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_rect.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_render.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_revision.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_rwops.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_scancode.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_sensor.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_shape.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_stdinc.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_surface.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_system.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_syswm.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_test.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_test_assert.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_test_common.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_test_compare.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_test_crc32.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_test_font.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_test_fuzzer.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_test_harness.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_test_images.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_test_log.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_test_md5.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_test_memory.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_test_random.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_thread.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_timer.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_touch.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_types.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_version.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_video.h" />
+    <ClInclude Include="src\vendors\SDL\SDL_vulkan.h" />
+    <ClInclude Include="src\vendors\stb_image\stb_image.h" />
+    <ClInclude Include="src\WindowSize.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\Cube.gpmesh" />
+    <None Include="Assets\Plane.gpmesh" />
+    <None Include="Assets\Sphere.gpmesh" />
+    <None Include="Shaders\BasicMesh.frag" />
+    <None Include="Shaders\BasicMesh.vert" />
+    <None Include="Shaders\Phong.frag" />
+    <None Include="Shaders\Phong.vert" />
+    <None Include="Shaders\Sprite.frag" />
+    <None Include="Shaders\Sprite.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\Asteroid\Asteroid.png" />
+    <Image Include="Assets\Cube.png" />
+    <Image Include="Assets\Default.png" />
+    <Image Include="Assets\HealthBar.png" />
+    <Image Include="Assets\Plane.png" />
+    <Image Include="Assets\Radar.png" />
+    <Image Include="Assets\Sphere.png" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
