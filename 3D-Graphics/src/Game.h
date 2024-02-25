@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <string>
 #include "GameProgCpp/Math.h"
+#include "Sound/SoundEvent.h"
 
 class Game
 {
@@ -23,11 +24,13 @@ public:
 	void RemoveActor(class Actor* actor);
 
 	class Renderer* GetRenderer() { return mRenderer; }
+	class AudioSystem* GetAudioSystem() { return mAudioSystem; }
 
 private:
 
 	// Helper Functions for the game loop
 	void ProcessInput();
+	void HandleKeyPress(int key);
 	void UpdateGame();
 	void GenerateOutput();
 	void LoadData();
@@ -41,6 +44,7 @@ private:
 	std::vector<class Actor*> mPendingActors;
 
 	class Renderer* mRenderer;
+	class AudioSystem* mAudioSystem;
 
 	Uint32 mTicksCount;
 
@@ -51,4 +55,11 @@ private:
 
 	// Game-specific code
 	class CameraActor* mCameraActor;
+	class Sphere* mSphere;
+	class Cube* mCube;
+	class HealthBar* mHealthBar;
+	class Radar* mRadar;
+
+	SoundEvent mMusicEvent;
+	SoundEvent mReverbSnap;
 };

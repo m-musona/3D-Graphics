@@ -4,9 +4,9 @@
 #include "Texture.h"
 #include "VertexArray.h"
 
-#include <RapidJSON/document.h>
+#include "RapidJSON/document.h"
 #include "SDL/SDL_log.h"
-#include "../vendors/GameProgCpp/Math.h"
+#include "GameProgCpp/Math.h"
 
 #include <fstream>
 #include <sstream>

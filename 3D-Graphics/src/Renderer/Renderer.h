@@ -4,7 +4,7 @@
 #include <vector>
 #include <unordered_map>
 #include "SDL/SDL.h"
-#include "../vendors/GameProgCpp/Math.h"
+#include "GameProgCpp/Math.h"
 
 struct DirectionalLight
 {
@@ -46,6 +46,8 @@ public:
 	void SetAmbientLight(const Vector3& ambient) { mAmbientLight = ambient; }
 	DirectionalLight& GetDirectionalLight() { return mDirLight; }
 
+	float GetScreenWidth() const { return mScreenWidth; }
+	float GetScreenHeight() const { return mScreenHeight; }
 
 private:
 	bool LoadShaders();

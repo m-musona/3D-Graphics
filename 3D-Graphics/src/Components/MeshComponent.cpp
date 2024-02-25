@@ -34,7 +34,10 @@ void MeshComponent::Draw(Shader* shader)
 
 		// Set the active texture
 		Texture* texture = mMesh->GetTexture(mTextureIndex);
-		if (texture) { texture->SetActive(); }
+		if (texture) 
+		{ 
+			texture->SetActive(); 
+		}
 
 		// Set the mesh's vertex array as active
 		VertexArray* vertexArray = mMesh->GetVertexArray();

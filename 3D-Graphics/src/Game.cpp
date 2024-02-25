@@ -1,26 +1,34 @@
 #include "Game.h"
+
 #include "Actor.h"
 #include "Actors/PlaneActor.h"
 #include "Actors/CameraActor.h"
+#include "Actors/Sphere.h"
+#include "Actors/Cube.h"
+#include "Actors/UI/HealthBar.h"
+#include "Actors/UI/Radar.h"
+
 #include "Components/MeshComponent.h"
-#include "Components/SpriteComponent.h"
-#include "Renderer/Shader.h"
-#include "Renderer/VertexArray.h"
+#include "Components/SpriteComponent.h"'
+
 #include "Renderer/Texture.h"
 #include "Renderer/Renderer.h"
 
+#include "Systems/AudioSystem.h"
+
 #include <algorithm>
 #include <iostream>
+#include <string>
 
 #include "SDL/SDL_image.h"
-#include "GameProgCpp/Random.h"
 #include "glad/glad.h"
 
 
 #include "WindowSize.h"
 
 Game::Game()
-	: mRenderer(nullptr),
+	:mRenderer(nullptr),
+	mAudioSystem(nullptr),
 	mIsRunning(true), 
 	mUpdatingActors(false)
 {
@@ -46,6 +54,17 @@ bool Game::Initialize()
 		SDL_Log("Failed to initialize renderer");
 		delete mRenderer;
 		mRenderer = nullptr;
+		return false;
+	}
+
+	// Create the audio system
+	mAudioSystem = new AudioSystem(this);
+	if (!mAudioSystem->Initialize())
+	{
+		SDL_Log("Failed to initialize audio system");
+		mAudioSystem->Shutdown();
+		delete mAudioSystem;
+		mAudioSystem = nullptr;
 		return false;
 	}
 	
@@ -74,6 +93,10 @@ void Game::Shutdown()
 	{
 		mRenderer->Shutdown();
 	}
+	if (mAudioSystem)
+	{
+		mAudioSystem->Shutdown();
+	}
 	SDL_Quit();
 }
 
@@ -90,8 +113,19 @@ void Game::ProcessInput()
 
 		case SDL_QUIT:
 			mIsRunning = false;
-
 			break;
+
+		// This fires when a key's initially pressed
+		case SDL_KEYDOWN:
+			if (!event.key.repeat)
+			{
+				HandleKeyPress(event.key.keysym.sym);
+			}
+			break;
+
+		default:
+			break;
+
 		}
 	}
 
@@ -110,12 +144,58 @@ void Game::ProcessInput()
 		actor->ProcessInput(keyState);
 	}
 	mUpdatingActors = false;
+}
 
-	// Process ship input
-	// mShip->ProcessKeyboard(state);
-
-	// Process character input
-	// mCharacter->ProcessKeyboard(state);
+void Game::HandleKeyPress(int key)
+{
+	switch (key)
+	{
+	case '-':
+	{
+		// Reduce master volume
+		float volume = mAudioSystem->GetBusVolume("bus:/");
+		volume = Math::Max(0.0f, volume - 0.1f);
+		mAudioSystem->SetBusVolume("bus:/", volume);
+		break;
+	}
+	case '=':
+	{
+		// Increase master volume
+		float volume = mAudioSystem->GetBusVolume("bus:/");
+		volume = Math::Min(1.0f, volume + 0.1f);
+		mAudioSystem->SetBusVolume("bus:/", volume);
+		break;
+	}
+	case 'e':
+		// Play explosion
+		mAudioSystem->PlayEvent("event:/Explosion2D");
+		break;
+	case 'p':
+		// Toggle music pause state
+		mMusicEvent.SetPaused(!mMusicEvent.GetPaused());
+		break;
+	case 'r':
+		// Stop or start reverb snapshot
+		if (!mReverbSnap.IsValid())
+		{
+			mReverbSnap = mAudioSystem->PlayEvent("snapshot:/WithReverb");
+		}
+		else
+		{
+			mReverbSnap.Stop();
+		}
+		break;
+	case '1':
+		// Set default footstep surface
+		mCameraActor->SetFootstepSurface(0.0f);
+		break;
+	case '2':
+		// Set grass footstep surface
+		mCameraActor->SetFootstepSurface(0.5f);
+		break;
+	default:
+		break;
+	}
 }
 
 void Game::UpdateGame()
@@ -167,6 +247,10 @@ void Game::UpdateGame()
 	{
 		delete actor;
 	}
+
+	// Update audio system
+	mAudioSystem->Update(deltatime);
+
 }
 
 void Game::GenerateOutput()
@@ -178,34 +262,22 @@ void Game::LoadData()
 {
 	// Create actors
 	Actor* a = new Actor(this);
-	a->SetPosition(Vector3(200.0f, 75.0f, 0.0f));
-	a->SetScale(100.0f);
-	Quaternion q(Vector3::UnitY, -Math::PiOver2);
-	q = Quaternion::Concatenate(q, Quaternion(Vector3::UnitZ, Math::Pi + Math::Pi / 4.0f));
-	a->SetRotation(q);
-	MeshComponent* mc = new MeshComponent(a);
-	mc->SetMesh(mRenderer->GetMesh("Assets/Cube.gpmesh"));
-
-	a = new Actor(this);
-	a->SetPosition(Vector3(200.0f, -75.0f, 0.0f));
-	a->SetScale(3.0f);
-	mc = new MeshComponent(a);
-	mc->SetMesh(mRenderer->GetMesh("Assets/Sphere.gpmesh"));
 
 	// Setup floor
 	const float start = -1250.0f;
 	const float size = 250.0f;
+
 	for (int i = 0; i < 10; i++)
 	{
 		for (int j = 0; j < 10; j++)
 		{
 			a = new PlaneActor(this);
-			a->SetPosition(Vector3(start + i * size, start + j * size, -100.0f));
+			a->SetPosition(Vector3(start + i * size, start + j * size, -200.0f));
 		}
 	}
 
 	// Left/right walls
-	q = Quaternion(Vector3::UnitX, Math::PiOver2);
+	Quaternion q = Quaternion(Vector3::UnitX, Math::PiOver2);
 	for (int i = 0; i < 10; i++)
 	{
 		a = new PlaneActor(this);
@@ -239,18 +311,19 @@ void Game::LoadData()
 
 	// Camera actor
 	mCameraActor = new CameraActor(this);
+	// Sphere actor
+	mSphere = new Sphere(this);
+	// Cube actor
+	mCube = new Cube(this);
 
-	// UI elements
-	a = new Actor(this);
-	a->SetPosition(Vector3(-350.0f, -350.0f, 0.0f));
-	SpriteComponent* sc = new SpriteComponent(a);
-	sc->SetTexture(mRenderer->GetTexture("Assets/HealthBar.png"));
+	// UI ELEMENTS
+	// Health Bar
+	mHealthBar = new HealthBar(this);
+	// Rader
+	mRadar = new Radar(this);
 
-	a = new Actor(this);
-	a->SetPosition(Vector3(375.0f, -275.0f, 0.0f));
-	a->SetScale(0.75f);
-	sc = new SpriteComponent(a);
-	sc->SetTexture(mRenderer->GetTexture("Assets/Radar.png"));
+	// Start music
+	mMusicEvent = mAudioSystem->PlayEvent("event:/Music");
 }
 
 void Game::UnloadData()

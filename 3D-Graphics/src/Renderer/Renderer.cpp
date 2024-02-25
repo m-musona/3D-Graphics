@@ -6,13 +6,12 @@
 #include "VertexArray.h"
 
 #include "../Components/SpriteComponent.h"
+#include "../Components/MeshComponent.h"
 
 #include <algorithm>
 #include <iostream>
 
 #include "glad/glad.h"
-
-#include "../Components/MeshComponent.h"
 
 Renderer::Renderer(Game* game)
 	:mGame(game),
@@ -42,14 +41,13 @@ bool Renderer::Initialize(float screenWidth, float screenHeight)
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
 	// Enable double buffering
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
 	// Force OpenGL to use hardware acceleration(Run on GPU)
 	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
 	// Create window
 	mWindow = SDL_CreateWindow(
@@ -110,8 +108,8 @@ void Renderer::Shutdown()
 	delete mSpriteVerts;
 	mSpriteShader->Unload();
 	delete mSpriteShader;
-	//mMeshShader->Unload();
-	//delete mMeshShader;
+	mMeshShader->Unload();
+	delete mMeshShader;
 
 	// Shutdown SDL Functions
 	SDL_GL_DeleteContext(mContext);
@@ -168,9 +166,11 @@ void Renderer::Draw()
 	// Enable alpha blending on the color buffer
 	glEnable(GL_BLEND);
 	glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-	glBlendFunc(
+	glBlendFuncSeparate(
 		GL_SRC_ALPHA,			// srcFactor is srcAlpha
-		GL_ONE_MINUS_SRC_ALPHA	// dstFactor is 1 - srcAlpha
+		GL_ONE_MINUS_SRC_ALPHA,	// dstFactor is 1 - srcAlpha
+		GL_ONE,
+		GL_ZERO
 	);
 
 	// Set sprite shader and vertex array objects active
@@ -218,6 +218,7 @@ void Renderer::RemoveSprite(SpriteComponent* sprite)
 Texture* Renderer::GetTexture(const std::string& filename)
 {
 	Texture* texture = nullptr;
+
 	// Check if the texture is already in the map?
 	auto iter = mTextures.find(filename);
 	if (iter != mTextures.end())
@@ -295,8 +296,8 @@ void Renderer::SetLightUniforms(Shader* shader)
 
 bool Renderer::LoadShaders()
 {
+	// Create Sprite shader
 	mSpriteShader = new Shader();
-
 	if (!mSpriteShader->Load("Shaders/Sprite.vert", "Shaders/Sprite.frag"))
 	{
 		return false;
@@ -339,12 +340,6 @@ bool Renderer::LoadShaders()
 
 void Renderer::CreateSpriteVerts()
 {
-	//float vertices[] = {
-	//	-0.5f,  0.5f, 0.f, 0.f, 0.f, // top left
-	//	 0.5f,  0.5f, 0.f, 1.f, 0.f, // top right
-	//	 0.5f, -0.5f, 0.f, 1.f, 1.f, // bottom right
-	//	-0.5f, -0.5f, 0.f, 0.f, 1.f  // bottom left
-	//};
 
 	float vertices[] = {
 		-0.5f, 0.5f, 0.f, 0.f, 0.f, 0.0f, 0.f, 0.f, // top left

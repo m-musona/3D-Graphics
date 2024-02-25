@@ -76,13 +76,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>src/vendors;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src/vendors;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\SDL;$(SolutionDir)Dependencies\GLFW\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2test.lib;SDL2_image.lib;glfw3.lib;glfw3_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\SDL;$(SolutionDir)Dependencies\GLFW\lib-vc2022;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\lib;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2test.lib;SDL2_image.lib;glfw3.lib;glfw3_mt.lib;fmodL64_vc.lib;fmodstudioL64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -93,15 +93,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>src/vendors;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src/vendors;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\SDL;$(SolutionDir)Dependencies\GLFW\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2test.lib;SDL2_image.lib;glfw3.lib;glfw3_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\SDL;$(SolutionDir)Dependencies\GLFW\lib-vc2022;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\lib;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2test.lib;SDL2_image.lib;glfw3.lib;glfw3_mt.lib;fmodL64_vc.lib;fmodstudioL64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -110,13 +110,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>src/vendors;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src/vendors;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\SDL;$(SolutionDir)Dependencies\GLFW\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2test.lib;SDL2_image.lib;glfw3.lib;glfw3_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\SDL;$(SolutionDir)Dependencies\GLFW\lib-vc2022;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\lib;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2test.lib;SDL2_image.lib;glfw3.lib;glfw3_mt.lib;fmodL64_vc.lib;fmodstudioL64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -127,23 +127,28 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>src/vendors;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src/vendors;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\SDL;$(SolutionDir)Dependencies\GLFW\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2test.lib;SDL2_image.lib;glfw3.lib;glfw3_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\SDL;$(SolutionDir)Dependencies\GLFW\lib-vc2022;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\lib;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2test.lib;SDL2_image.lib;glfw3.lib;glfw3_mt.lib;fmodL64_vc.lib;fmodstudioL64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Actor.cpp" />
     <ClCompile Include="src\Actors\CameraActor.cpp" />
+    <ClCompile Include="src\Actors\Cube.cpp" />
     <ClCompile Include="src\Actors\PlaneActor.cpp" />
+    <ClCompile Include="src\Actors\Sphere.cpp" />
+    <ClCompile Include="src\Actors\UI\HealthBar.cpp" />
+    <ClCompile Include="src\Actors\UI\Radar.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\Component.cpp" />
+    <ClCompile Include="src\Components\AudioComponent.cpp" />
     <ClCompile Include="src\Components\CircleCollisionComponent.cpp" />
     <ClCompile Include="src\Components\MeshComponent.cpp" />
     <ClCompile Include="src\Components\MoveComponent.cpp" />
@@ -154,6 +159,8 @@
     <ClCompile Include="src\Renderer\Shader.cpp" />
     <ClCompile Include="src\Renderer\Texture.cpp" />
     <ClCompile Include="src\Renderer\VertexArray.cpp" />
+    <ClCompile Include="src\Sound\SoundEvent.cpp" />
+    <ClCompile Include="src\Systems\AudioSystem.cpp" />
     <ClCompile Include="src\vendors\GameProgCpp\Math.cpp" />
     <ClCompile Include="src\vendors\GameProgCpp\Random.cpp" />
     <ClCompile Include="src\vendors\glad\src\glad.c" />
@@ -162,8 +169,13 @@
   <ItemGroup>
     <ClInclude Include="src\Actor.h" />
     <ClInclude Include="src\Actors\CameraActor.h" />
+    <ClInclude Include="src\Actors\Cube.h" />
     <ClInclude Include="src\Actors\PlaneActor.h" />
+    <ClInclude Include="src\Actors\Sphere.h" />
+    <ClInclude Include="src\Actors\UI\HealthBar.h" />
+    <ClInclude Include="src\Actors\UI\Radar.h" />
     <ClInclude Include="src\Component.h" />
+    <ClInclude Include="src\Components\AudioComponent.h" />
     <ClInclude Include="src\Components\CircleCollisionComponent.h" />
     <ClInclude Include="src\Components\MeshComponent.h" />
     <ClInclude Include="src\Components\MoveComponent.h" />
@@ -174,6 +186,8 @@
     <ClInclude Include="src\Renderer\Shader.h" />
     <ClInclude Include="src\Renderer\Texture.h" />
     <ClInclude Include="src\Renderer\VertexArray.h" />
+    <ClInclude Include="src\Sound\SoundEvent.h" />
+    <ClInclude Include="src\Systems\AudioSystem.h" />
     <ClInclude Include="src\vendors\GameProgCpp\Math.h" />
     <ClInclude Include="src\vendors\GameProgCpp\Random.h" />
     <ClInclude Include="src\vendors\glad\glad.h" />
@@ -298,6 +312,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Cube.gpmesh" />
+    <None Include="Assets\Master Bank.bank" />
+    <None Include="Assets\Master Bank.strings.bank" />
     <None Include="Assets\Plane.gpmesh" />
     <None Include="Assets\Sphere.gpmesh" />
     <None Include="Shaders\BasicMesh.frag" />
