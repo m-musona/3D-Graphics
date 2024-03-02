@@ -27,10 +27,12 @@ void MoveComponent::Update(float deltatime)
 
 	// Update Position based on forward speed
 	// Convert from angle to a forward vector
-	if (!Math::NearZero(mForwardSpeed))
+	if (!Math::NearZero(mForwardSpeed) || !Math::NearZero(mStrafeSpeed))
 	{
 		Vector3 position = mOwner->GetPosition();
 		position += mOwner->GetForward() * mForwardSpeed * deltatime;
+		// Update position based on strafe
+		position += mOwner->GetRight() * mStrafeSpeed * deltatime;
 
 		mOwner->SetPosition(position);
 	}

@@ -14,10 +14,14 @@ public:
 	void SetAngularSpeed(float speed) { mAngularSpeed = speed; }
 	float GetForwardSpeed() const { return mForwardSpeed; }
 	void SetForwardSpeed(float speed) { mForwardSpeed = speed; }
+	float GetStrafeSpeed() const { return mStrafeSpeed; }
+	void SetStrafeSpeed(float speed) { mStrafeSpeed = speed; }
 
 private:
 	// Controls Forward Movement (units/seconds)
 	float mForwardSpeed;
 	// Controls Rotation Movement (radians/seconds)
 	float mAngularSpeed;
+	// Affects speed at wich character strafes
+	float mStrafeSpeed;
 };

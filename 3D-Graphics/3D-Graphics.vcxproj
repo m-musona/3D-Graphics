@@ -140,15 +140,24 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Actor.cpp" />
-    <ClCompile Include="src\Actors\CameraActor.cpp" />
+    <ClCompile Include="src\Actors\FollowActor.cpp" />
+    <ClCompile Include="src\Actors\FPSActor.cpp" />
     <ClCompile Include="src\Actors\Cube.cpp" />
+    <ClCompile Include="src\Actors\OrbitActor.cpp" />
     <ClCompile Include="src\Actors\PlaneActor.cpp" />
     <ClCompile Include="src\Actors\Sphere.cpp" />
+    <ClCompile Include="src\Actors\SplineActor.cpp" />
+    <ClCompile Include="src\Actors\UI\AimingReticule.cpp" />
     <ClCompile Include="src\Actors\UI\HealthBar.cpp" />
     <ClCompile Include="src\Actors\UI\Radar.cpp" />
     <ClCompile Include="src\Application.cpp" />
+    <ClCompile Include="src\Cameras\FollowCamera.cpp" />
+    <ClCompile Include="src\Cameras\OrbitCamera.cpp" />
+    <ClCompile Include="src\Cameras\SplineCamera.cpp" />
     <ClCompile Include="src\Component.cpp" />
     <ClCompile Include="src\Components\AudioComponent.cpp" />
+    <ClCompile Include="src\Components\CameraComponent.cpp" />
+    <ClCompile Include="src\Cameras\FPSCamera.cpp" />
     <ClCompile Include="src\Components\CircleCollisionComponent.cpp" />
     <ClCompile Include="src\Components\MeshComponent.cpp" />
     <ClCompile Include="src\Components\MoveComponent.cpp" />
@@ -168,14 +177,23 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Actor.h" />
-    <ClInclude Include="src\Actors\CameraActor.h" />
+    <ClInclude Include="src\Actors\FollowActor.h" />
+    <ClInclude Include="src\Actors\FPSActor.h" />
     <ClInclude Include="src\Actors\Cube.h" />
+    <ClInclude Include="src\Actors\OrbitActor.h" />
     <ClInclude Include="src\Actors\PlaneActor.h" />
     <ClInclude Include="src\Actors\Sphere.h" />
+    <ClInclude Include="src\Actors\SplineActor.h" />
+    <ClInclude Include="src\Actors\UI\AimingReticule.h" />
     <ClInclude Include="src\Actors\UI\HealthBar.h" />
     <ClInclude Include="src\Actors\UI\Radar.h" />
+    <ClInclude Include="src\Cameras\FollowCamera.h" />
+    <ClInclude Include="src\Cameras\OrbitCamera.h" />
+    <ClInclude Include="src\Cameras\SplineCamera.h" />
     <ClInclude Include="src\Component.h" />
     <ClInclude Include="src\Components\AudioComponent.h" />
+    <ClInclude Include="src\Components\CameraComponent.h" />
+    <ClInclude Include="src\Cameras\FPSCamera.h" />
     <ClInclude Include="src\Components\CircleCollisionComponent.h" />
     <ClInclude Include="src\Components\MeshComponent.h" />
     <ClInclude Include="src\Components\MoveComponent.h" />
@@ -315,6 +333,8 @@
     <None Include="Assets\Master Bank.bank" />
     <None Include="Assets\Master Bank.strings.bank" />
     <None Include="Assets\Plane.gpmesh" />
+    <None Include="Assets\RacingCar.gpmesh" />
+    <None Include="Assets\Rifle.gpmesh" />
     <None Include="Assets\Sphere.gpmesh" />
     <None Include="Shaders\BasicMesh.frag" />
     <None Include="Shaders\BasicMesh.vert" />
@@ -325,11 +345,14 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Asteroid\Asteroid.png" />
+    <Image Include="Assets\Crosshair.png" />
     <Image Include="Assets\Cube.png" />
     <Image Include="Assets\Default.png" />
     <Image Include="Assets\HealthBar.png" />
     <Image Include="Assets\Plane.png" />
+    <Image Include="Assets\RacingCar.png" />
     <Image Include="Assets\Radar.png" />
+    <Image Include="Assets\Rifle.png" />
     <Image Include="Assets\Sphere.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

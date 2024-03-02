@@ -69,7 +69,7 @@
     <ClCompile Include="src\Actors\PlaneActor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Actors\CameraActor.cpp">
+    <ClCompile Include="src\Actors\FPSActor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Systems\AudioSystem.cpp">
@@ -91,6 +91,33 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Actors\UI\Radar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Cameras\FPSCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Components\CameraComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Actors\UI\AimingReticule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Cameras\FollowCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Actors\FollowActor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Cameras\OrbitCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Actors\OrbitActor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Cameras\SplineCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Actors\SplineActor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -497,7 +524,7 @@
     <ClInclude Include="src\Actors\PlaneActor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Actors\CameraActor.h">
+    <ClInclude Include="src\Actors\FPSActor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Systems\AudioSystem.h">
@@ -521,6 +548,33 @@
     <ClInclude Include="src\Actors\UI\Radar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Cameras\FPSCamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Components\CameraComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Actors\UI\AimingReticule.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Cameras\FollowCamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Actors\FollowActor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Cameras\OrbitCamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Actors\OrbitActor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Cameras\SplineCamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Actors\SplineActor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Sprite.frag" />
@@ -534,6 +588,8 @@
     <None Include="Shaders\Phong.vert" />
     <None Include="Assets\Master Bank.bank" />
     <None Include="Assets\Master Bank.strings.bank" />
+    <None Include="Assets\RacingCar.gpmesh" />
+    <None Include="Assets\Rifle.gpmesh" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Asteroid\Asteroid.png">
@@ -555,6 +611,15 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Assets\Sphere.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Crosshair.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\RacingCar.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Rifle.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

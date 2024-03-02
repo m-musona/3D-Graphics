@@ -20,7 +20,7 @@ bool Texture::Load(const std::string& fileName)
 {
 	int channels = 0;
 
-	stbi_set_flip_vertically_on_load(1);
+	stbi_set_flip_vertically_on_load(0);
 
 	unsigned char* image = stbi_load(
 		fileName.c_str(), 

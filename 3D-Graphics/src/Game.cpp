@@ -2,11 +2,15 @@
 
 #include "Actor.h"
 #include "Actors/PlaneActor.h"
-#include "Actors/CameraActor.h"
+#include "Actors/FPSActor.h"
+#include "Actors/FollowActor.h"
+#include "Actors/OrbitActor.h"
+#include "Actors/SplineActor.h"
 #include "Actors/Sphere.h"
 #include "Actors/Cube.h"
 #include "Actors/UI/HealthBar.h"
 #include "Actors/UI/Radar.h"
+#include "Actors/UI/AimingReticule.h"
 
 #include "Components/MeshComponent.h"
 #include "Components/SpriteComponent.h"'
@@ -18,7 +22,6 @@
 
 #include <algorithm>
 #include <iostream>
-#include <string>
 
 #include "SDL/SDL_image.h"
 #include "glad/glad.h"
@@ -187,11 +190,17 @@ void Game::HandleKeyPress(int key)
 		break;
 	case '1':
 		// Set default footstep surface
-		mCameraActor->SetFootstepSurface(0.0f);
+		mFPSActor->SetFootstepSurface(0.0f);
 		break;
 	case '2':
 		// Set grass footstep surface
-		mCameraActor->SetFootstepSurface(0.5f);
+		mFPSActor->SetFootstepSurface(0.5f);
+		break;
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+		ChangeCamera(key);
 		break;
 	default:
 		break;
@@ -309,8 +318,6 @@ void Game::LoadData()
 	dir.mDiffuseColor = Vector3(0.78f, 0.88f, 1.0f);
 	dir.mSpecColor = Vector3(0.8f, 0.8f, 0.8f);
 
-	// Camera actor
-	mCameraActor = new CameraActor(this);
 	// Sphere actor
 	mSphere = new Sphere(this);
 	// Cube actor
@@ -321,9 +328,28 @@ void Game::LoadData()
 	mHealthBar = new HealthBar(this);
 	// Rader
 	mRadar = new Radar(this);
+	// AimingReticule
+	//mAimingReticule = new AimingReticule(this);
+	a = new Actor(this);
+	a->SetScale(2.0f);
+	mCrosshair = new SpriteComponent(a);
+	mCrosshair->SetTexture(mRenderer->GetTexture("Assets/Crosshair.png"));
 
 	// Start music
 	mMusicEvent = mAudioSystem->PlayEvent("event:/Music");
+
+	// Enable relative mouse mode for camera look
+	SDL_SetRelativeMouseMode(SDL_TRUE);
+	// Make an initial call to get relative to clear out
+	SDL_GetRelativeMouseState(nullptr, nullptr);
+
+	// Different camera actors
+	mFPSActor = new FPSActor(this);
+	mFollowActor = new FollowActor(this);
+	mOrbitActor = new OrbitActor(this);
+	mSplineActor = new SplineActor(this);
+
+	ChangeCamera('3');
 }
 
 void Game::UnloadData()
@@ -372,5 +398,41 @@ void Game::RemoveActor(Actor* actor)
 		// Swap to end of vector and pop off (avoid erase copies)
 		std::iter_swap(iter, mActors.end() - 1);
 		mActors.pop_back();
+	}
+}
+
+void Game::ChangeCamera(int mode)
+{
+	// Disable everything
+	mFPSActor->SetState(Actor::EPaused);
+	mFPSActor->SetVisible(false);
+	mCrosshair->SetVisible(false);
+	mFollowActor->SetState(Actor::EPaused);
+	mFollowActor->SetVisible(false);
+	mOrbitActor->SetState(Actor::EPaused);
+	mOrbitActor->SetVisible(false);
+	mSplineActor->SetState(Actor::EPaused);
+
+	// Enable the camera specified by the mode
+	switch (mode)
+	{
+	case '3':
+	default:
+		mFPSActor->SetState(Actor::EActive);
+		mFPSActor->SetVisible(true);
+		mCrosshair->SetVisible(true);
+		break;
+	case '4':
+		mFollowActor->SetState(Actor::EActive);
+		mFollowActor->SetVisible(true);
+		break;
+	case '5':
+		mOrbitActor->SetState(Actor::EActive);
+		mOrbitActor->SetVisible(true);
+		break;
+	case '6':
+		mSplineActor->SetState(Actor::EActive);
+		mSplineActor->RestartSpline();
+		break;
 	}
 }

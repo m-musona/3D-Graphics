@@ -54,12 +54,20 @@ private:
 	bool mIsRunning;
 
 	// Game-specific code
-	class CameraActor* mCameraActor;
+	class FPSActor* mFPSActor;
+	class FollowActor* mFollowActor;
+	class OrbitActor* mOrbitActor;
+	class SplineActor* mSplineActor;
+
 	class Sphere* mSphere;
 	class Cube* mCube;
+	class AimingReticule* mAimingReticule;
+	class SpriteComponent* mCrosshair;
 	class HealthBar* mHealthBar;
 	class Radar* mRadar;
 
 	SoundEvent mMusicEvent;
 	SoundEvent mReverbSnap;
+
+	void ChangeCamera(int mode);
 };

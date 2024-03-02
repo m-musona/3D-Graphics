@@ -158,7 +158,10 @@ void Renderer::Draw()
 
 	for (auto mc : mMeshComps)
 	{
-		mc->Draw(mMeshShader);
+		if (mc->GetVisible())
+		{
+			mc->Draw(mMeshShader);
+		}
 	}
 
 	// Disable depth buffering
@@ -180,7 +183,10 @@ void Renderer::Draw()
 	// Loop over the vector of sprite components and call Draw on each
 	for (auto sprite : mSprites)
 	{
-		sprite->Draw(mSpriteShader);
+		if (sprite->GetVisible())
+		{
+			sprite->Draw(mSpriteShader);
+		}
 	}
 
 	//Step 3: Swap the front buffer and back buffer

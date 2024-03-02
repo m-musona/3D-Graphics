@@ -17,6 +17,9 @@ public:
 	int GetDrawOrder() const { return mDrawOrder; }
 	int GetTextureHeight() const { return mTextureHeight; }
 	int GetTextureWidth() const { return mTextureWidth; }
+
+	void SetVisible(bool visible) { mVisible = visible; }
+	bool GetVisible() const { return mVisible; }
 protected:
 	// Texture to draw
 	class Texture* mTexture;
@@ -27,4 +30,5 @@ protected:
 	// WIdth/Height of texture
 	int mTextureHeight;
 	int mTextureWidth;
+	bool mVisible;
 };
