@@ -12,7 +12,8 @@
 #include <sstream>
 
 Mesh::Mesh()
-	:mVertexArray(nullptr),
+	:mBox(Vector3::Infinity, Vector3::NegInfinity),
+	mVertexArray(nullptr),
 	mRadius(0.0f),
 	mSpecPower(100.0f)
 {
@@ -110,6 +111,7 @@ bool Mesh::Load(const std::string& fileName, Renderer* renderer)
 
 		Vector3 pos(vert[0].GetDouble(), vert[1].GetDouble(), vert[2].GetDouble());
 		mRadius = Math::Max(mRadius, pos.LengthSq());
+		mBox.UpdateMinMax(pos);
 
 		// Add the floats
 		for (rapidjson::SizeType i = 0; i < vert.Size(); i++)
@@ -120,6 +122,7 @@ bool Mesh::Load(const std::string& fileName, Renderer* renderer)
 
 	// We were computing length squared earlier
 	mRadius = Math::Sqrt(mRadius);
+	
 
 	// Load in the indices
 	const rapidjson::Value& indJson = doc["indices"];

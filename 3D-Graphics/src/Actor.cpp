@@ -38,6 +38,30 @@ void Actor::Update(float deltatime)
 	}
 }
 
+void Actor::RotateToNewForward(const Vector3& forward)
+{
+	// Figure out difference between original (unit x) and new
+	float dot = Vector3::Dot(Vector3::UnitX, forward);
+	float angle = Math::Acos(dot);
+	// Facing down X
+	if (dot > 0.9999f)
+	{
+		SetRotation(Quaternion::Identity);
+	}
+	// Facing down -X
+	else if (dot < -0.9999f)
+	{
+		SetRotation(Quaternion(Vector3::UnitZ, Math::Pi));
+	}
+	else
+	{
+		// Rotate about axis from cross product
+		Vector3 axis = Vector3::Cross(Vector3::UnitX, forward);
+		axis.Normalize();
+		SetRotation(Quaternion(axis, angle));
+	}
+}
+
 void Actor::UpdateComponents(float deltatime)
 {
 	for (auto component : mComponents)

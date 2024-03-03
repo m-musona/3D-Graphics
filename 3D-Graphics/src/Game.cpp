@@ -1,6 +1,10 @@
 #include "Game.h"
 
+#include "PhysWorld.h"
 #include "Actor.h"
+
+#include "Actors/TargetActor.h"
+#include "Actors/BallActor.h"
 #include "Actors/PlaneActor.h"
 #include "Actors/FPSActor.h"
 #include "Actors/FollowActor.h"
@@ -32,9 +36,21 @@
 Game::Game()
 	:mRenderer(nullptr),
 	mAudioSystem(nullptr),
+	mPhysWorld(nullptr),
 	mIsRunning(true), 
 	mUpdatingActors(false)
 {
+}
+
+void Game::AddPlane(PlaneActor* plane)
+{
+	mPlanes.emplace_back(plane);
+}
+
+void Game::RemovePlane(PlaneActor* plane)
+{
+	auto iter = std::find(mPlanes.begin(), mPlanes.end(), plane);
+	mPlanes.erase(iter);
 }
 
 bool Game::Initialize()
@@ -70,6 +86,9 @@ bool Game::Initialize()
 		mAudioSystem = nullptr;
 		return false;
 	}
+
+	// Create the physics world
+	mPhysWorld = new PhysWorld(this);
 	
 	LoadData();
 
@@ -126,6 +145,9 @@ void Game::ProcessInput()
 			}
 			break;
 
+		case SDL_MOUSEBUTTONDOWN:
+			HandleKeyPress(event.button.button);
+			break;
 		default:
 			break;
 
@@ -196,6 +218,12 @@ void Game::HandleKeyPress(int key)
 		// Set grass footstep surface
 		mFPSActor->SetFootstepSurface(0.5f);
 		break;
+	case SDL_BUTTON_LEFT:
+	{
+		// Fire weapon
+		mFPSActor->Shoot();
+		break;
+	}
 	case '3':
 	case '4':
 	case '5':
@@ -350,6 +378,16 @@ void Game::LoadData()
 	mSplineActor = new SplineActor(this);
 
 	ChangeCamera('3');
+
+	// Create target actors
+	a = new TargetActor(this);
+	a->SetPosition(Vector3(1450.0f, 0.0f, 100.0f));
+	a = new TargetActor(this);
+	a->SetPosition(Vector3(1450.0f, 0.0f, 400.0f));
+	a = new TargetActor(this);
+	a->SetPosition(Vector3(1450.0f, -500.0f, 200.0f));
+	a = new TargetActor(this);
+	a->SetPosition(Vector3(1450.0f, 500.0f, 200.0f));
 }
 
 void Game::UnloadData()

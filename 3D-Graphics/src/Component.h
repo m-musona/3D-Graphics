@@ -21,6 +21,7 @@ public:
 	// Called when world transform changes
 	virtual void OnUpdateWorldTransform() {}
 
+	class Actor* GetOwner() { return mOwner; }
 	int GetUpdateOrder() const { return mUpdateOrder; }
 
 protected:

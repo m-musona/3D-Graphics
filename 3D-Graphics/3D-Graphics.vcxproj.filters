@@ -120,6 +120,24 @@
     <ClCompile Include="src\Actors\SplineActor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Collision.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Components\BoxCollisionComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PhysWorld.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Actors\TargetActor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Actors\BallActor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Components\BallMove.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\vendors\GameProgCpp\Math.h">
@@ -575,6 +593,24 @@
     <ClInclude Include="src\Actors\SplineActor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Collision.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Components\BoxCollisionComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PhysWorld.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Actors\TargetActor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Actors\BallActor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Components\BallMove.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Sprite.frag" />
@@ -590,6 +626,7 @@
     <None Include="Assets\Master Bank.strings.bank" />
     <None Include="Assets\RacingCar.gpmesh" />
     <None Include="Assets\Rifle.gpmesh" />
+    <None Include="Assets\Target.gpmesh" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Asteroid\Asteroid.png">
@@ -620,6 +657,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Assets\Rifle.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Target.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

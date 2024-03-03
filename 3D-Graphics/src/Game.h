@@ -7,6 +7,7 @@
 #include <string>
 #include "GameProgCpp/Math.h"
 #include "Sound/SoundEvent.h"
+#include "Actors/PlaneActor.h"
 
 class Game
 {
@@ -25,6 +26,12 @@ public:
 
 	class Renderer* GetRenderer() { return mRenderer; }
 	class AudioSystem* GetAudioSystem() { return mAudioSystem; }
+	class PhysWorld* GetPhysWorld() { return mPhysWorld; }
+
+	// Game-specific
+	void AddPlane(class PlaneActor* plane);
+	void RemovePlane(class PlaneActor* plane);
+	std::vector<class PlaneActor*>& GetPlanes() { return mPlanes; }
 
 private:
 
@@ -45,6 +52,7 @@ private:
 
 	class Renderer* mRenderer;
 	class AudioSystem* mAudioSystem;
+	class PhysWorld* mPhysWorld;
 
 	Uint32 mTicksCount;
 
@@ -58,6 +66,7 @@ private:
 	class FollowActor* mFollowActor;
 	class OrbitActor* mOrbitActor;
 	class SplineActor* mSplineActor;
+	std::vector<class PlaneActor*> mPlanes;
 
 	class Sphere* mSphere;
 	class Cube* mCube;

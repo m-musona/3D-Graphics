@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Actor.cpp" />
+    <ClCompile Include="src\Actors\BallActor.cpp" />
     <ClCompile Include="src\Actors\FollowActor.cpp" />
     <ClCompile Include="src\Actors\FPSActor.cpp" />
     <ClCompile Include="src\Actors\Cube.cpp" />
@@ -147,6 +148,7 @@
     <ClCompile Include="src\Actors\PlaneActor.cpp" />
     <ClCompile Include="src\Actors\Sphere.cpp" />
     <ClCompile Include="src\Actors\SplineActor.cpp" />
+    <ClCompile Include="src\Actors\TargetActor.cpp" />
     <ClCompile Include="src\Actors\UI\AimingReticule.cpp" />
     <ClCompile Include="src\Actors\UI\HealthBar.cpp" />
     <ClCompile Include="src\Actors\UI\Radar.cpp" />
@@ -154,8 +156,11 @@
     <ClCompile Include="src\Cameras\FollowCamera.cpp" />
     <ClCompile Include="src\Cameras\OrbitCamera.cpp" />
     <ClCompile Include="src\Cameras\SplineCamera.cpp" />
+    <ClCompile Include="src\Collision.cpp" />
     <ClCompile Include="src\Component.cpp" />
     <ClCompile Include="src\Components\AudioComponent.cpp" />
+    <ClCompile Include="src\Components\BallMove.cpp" />
+    <ClCompile Include="src\Components\BoxCollisionComponent.cpp" />
     <ClCompile Include="src\Components\CameraComponent.cpp" />
     <ClCompile Include="src\Cameras\FPSCamera.cpp" />
     <ClCompile Include="src\Components\CircleCollisionComponent.cpp" />
@@ -163,6 +168,7 @@
     <ClCompile Include="src\Components\MoveComponent.cpp" />
     <ClCompile Include="src\Components\SpriteComponent.cpp" />
     <ClCompile Include="src\Game.cpp" />
+    <ClCompile Include="src\PhysWorld.cpp" />
     <ClCompile Include="src\Renderer\Mesh.cpp" />
     <ClCompile Include="src\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Renderer\Shader.cpp" />
@@ -177,6 +183,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Actor.h" />
+    <ClInclude Include="src\Actors\BallActor.h" />
     <ClInclude Include="src\Actors\FollowActor.h" />
     <ClInclude Include="src\Actors\FPSActor.h" />
     <ClInclude Include="src\Actors\Cube.h" />
@@ -184,14 +191,18 @@
     <ClInclude Include="src\Actors\PlaneActor.h" />
     <ClInclude Include="src\Actors\Sphere.h" />
     <ClInclude Include="src\Actors\SplineActor.h" />
+    <ClInclude Include="src\Actors\TargetActor.h" />
     <ClInclude Include="src\Actors\UI\AimingReticule.h" />
     <ClInclude Include="src\Actors\UI\HealthBar.h" />
     <ClInclude Include="src\Actors\UI\Radar.h" />
     <ClInclude Include="src\Cameras\FollowCamera.h" />
     <ClInclude Include="src\Cameras\OrbitCamera.h" />
     <ClInclude Include="src\Cameras\SplineCamera.h" />
+    <ClInclude Include="src\Collision.h" />
     <ClInclude Include="src\Component.h" />
     <ClInclude Include="src\Components\AudioComponent.h" />
+    <ClInclude Include="src\Components\BallMove.h" />
+    <ClInclude Include="src\Components\BoxCollisionComponent.h" />
     <ClInclude Include="src\Components\CameraComponent.h" />
     <ClInclude Include="src\Cameras\FPSCamera.h" />
     <ClInclude Include="src\Components\CircleCollisionComponent.h" />
@@ -199,6 +210,7 @@
     <ClInclude Include="src\Components\MoveComponent.h" />
     <ClInclude Include="src\Components\SpriteComponent.h" />
     <ClInclude Include="src\Game.h" />
+    <ClInclude Include="src\PhysWorld.h" />
     <ClInclude Include="src\Renderer\Mesh.h" />
     <ClInclude Include="src\Renderer\Renderer.h" />
     <ClInclude Include="src\Renderer\Shader.h" />
@@ -336,6 +348,7 @@
     <None Include="Assets\RacingCar.gpmesh" />
     <None Include="Assets\Rifle.gpmesh" />
     <None Include="Assets\Sphere.gpmesh" />
+    <None Include="Assets\Target.gpmesh" />
     <None Include="Shaders\BasicMesh.frag" />
     <None Include="Shaders\BasicMesh.vert" />
     <None Include="Shaders\Phong.frag" />
@@ -354,6 +367,7 @@
     <Image Include="Assets\Radar.png" />
     <Image Include="Assets\Rifle.png" />
     <Image Include="Assets\Sphere.png" />
+    <Image Include="Assets\Target.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
