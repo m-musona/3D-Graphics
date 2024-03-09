@@ -1,7 +1,9 @@
 #include "PhysWorld.h"
-#include <algorithm>
+
 #include "Components/BoxCollisionComponent.h"
 #include "SDL/SDL.h"
+
+#include <algorithm>
 
 PhysWorld::PhysWorld(Game* game)
 	:mGame(game)

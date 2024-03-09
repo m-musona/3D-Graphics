@@ -4,7 +4,10 @@
 #include "../Components/MoveComponent.h"
 
 #include "../Game.h"
+
 #include "../Renderer/Renderer.h"
+#include "../Renderer//Mesh.h"
+
 #include "../Cameras/OrbitCamera.h"
 
 OrbitActor::OrbitActor(Game* game)
@@ -12,7 +15,7 @@ OrbitActor::OrbitActor(Game* game)
 {
 	mMeshComp = new MeshComponent(this);
 	mMeshComp->SetMesh(game->GetRenderer()->GetMesh("Assets/RacingCar.gpmesh"));
-	SetPosition(Vector3(0.0f, 0.0f, -200.0f));
+	SetPosition(Vector3(0.0f, 0.0f, -100.0f));
 
 	mCameraComp = new OrbitCamera(this);
 }

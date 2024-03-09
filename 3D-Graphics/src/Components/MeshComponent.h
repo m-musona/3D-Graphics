@@ -1,13 +1,13 @@
 #pragma once
 
 #include "../Component.h"
-#include "../Renderer/Mesh.h"
+// #include "../Renderer/Mesh.h"
 #include <cstddef>
 
 class MeshComponent : public Component
 {
 public:
-	MeshComponent(class Actor* owner);
+	MeshComponent(class Actor* owner, bool isSkeletal = false);
 	~MeshComponent();
 
 	// Draw this mesh component with provided shader
@@ -20,8 +20,11 @@ public:
 	void SetVisible(bool visible) { mVisible = visible; }
 	bool GetVisible() const { return mVisible; }
 
+	bool GetIsSkeletal() const { return mIsSkeletal; }
+
 protected:
 	class Mesh* mMesh;
 	size_t mTextureIndex;
 	bool mVisible;
+	bool mIsSkeletal;
 };

@@ -1,5 +1,7 @@
 #include "Shader.h"
 
+#include "Texture.h"
+
 #include "SDL/SDL.h"
 
 #include <fstream>
@@ -40,7 +42,7 @@ bool Shader::Load(const std::string& vertName, const std::string& fragName)
 
 	// Verify that the program linked successfully
 
- 
+
 	if (!IsValidProgram())
 	{
 		return false;
@@ -77,6 +79,13 @@ void Shader::SetVectorUniform(const char* name, const Vector3& vector)
 	GLuint loc = glGetUniformLocation(mShaderProgram, name);
 	// Send the float data to the uniform
 	glUniform3fv(loc, 1, vector.GetAsFloatPtr());
+}
+
+void Shader::SetMatrixUniforms(const char* name, Matrix4* matrices, unsigned count)
+{
+	GLuint loc = glGetUniformLocation(mShaderProgram, name);
+	// Send the matrix data to the uniform
+	glUniformMatrix4fv(loc, count, GL_TRUE, matrices->GetAsFloatPtr());
 }
 
 void Shader::SetFloatUniform(const char* name, const float& value)

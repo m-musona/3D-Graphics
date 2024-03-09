@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <functional>
-#include "vendors/GameProgCpp/Math.h"
+#include "GameProgCpp/Math.h"
 #include "Collision.h"
 
 class PhysWorld

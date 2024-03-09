@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Component.h"
-#include "../vendors/GameProgCpp/Math.h"
+#include "GameProgCpp/Math.h"
 
 class CameraComponent : public Component
 {

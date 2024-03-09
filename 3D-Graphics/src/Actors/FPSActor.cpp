@@ -1,6 +1,7 @@
 #include "FPSActor.h"
 
 #include "BallActor.h"
+#include "PlaneActor.h"
 
 #include "../Components/MoveComponent.h"
 #include "../Components/AudioComponent.h"
@@ -10,6 +11,8 @@
 #include "../Cameras/FPSCamera.h"
 
 #include "../Renderer/Renderer.h"
+#include "../Renderer/Mesh.h"
+
 #include "../Game.h"
 #include "../Systems/AudioSystem.h"
 
@@ -22,6 +25,7 @@
 FPSActor::FPSActor(Game* game)
 	:Actor(game)
 {
+	SetPosition(Vector3(0.0f, 0.0f, 150.0f));
 	mMoveComp = new MoveComponent(this);
 	mAudioComp = new AudioComponent(this);
 	mLastFootstep = 0.0f;

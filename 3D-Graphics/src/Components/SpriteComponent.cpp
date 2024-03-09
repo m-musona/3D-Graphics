@@ -2,14 +2,16 @@
 
 #include "../Actor.h"
 #include "../Game.h"
+
 #include "../Renderer/Shader.h"
 #include "../Renderer/Renderer.h"
+#include "../Renderer/Texture.h"
 
 SpriteComponent::SpriteComponent(Actor* owner, int drawOrder)
-	: Component(owner), 
-	mTexture(nullptr), 
-	mDrawOrder(drawOrder), 
-	mTextureWidth(0), 
+	: Component(owner),
+	mTexture(nullptr),
+	mDrawOrder(drawOrder),
+	mTextureWidth(0),
 	mTextureHeight(0),
 	mVisible(true)
 {
@@ -55,7 +57,7 @@ void SpriteComponent::Draw(Shader* shader)
 void SpriteComponent::SetTexture(Texture* texture)
 {
 	mTexture = texture;
-	
+
 	// Set width/height of texture
 	mTextureWidth = texture->GetWidth();
 	mTextureHeight = texture->GetHeight();

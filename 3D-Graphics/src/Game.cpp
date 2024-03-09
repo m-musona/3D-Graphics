@@ -1,45 +1,50 @@
 #include "Game.h"
 
+#include "Font.h"
 #include "PhysWorld.h"
 #include "Actor.h"
+#include "UIScreen.h"
+#include "WindowSize.h"
 
+#include "Renderer/Renderer.h"
+
+#include "Systems/AudioSystem.h"
+
+#include "UI/HUD.h"
+#include "UI/PauseMenu.h"
+
+#include "Components/MeshComponent.h"
+
+#include "Actors/FPSActor.h"
+#include "Actors/PlaneActor.h"
 #include "Actors/TargetActor.h"
 #include "Actors/BallActor.h"
-#include "Actors/PlaneActor.h"
-#include "Actors/FPSActor.h"
 #include "Actors/FollowActor.h"
 #include "Actors/OrbitActor.h"
 #include "Actors/SplineActor.h"
 #include "Actors/Sphere.h"
 #include "Actors/Cube.h"
-#include "Actors/UI/HealthBar.h"
-#include "Actors/UI/Radar.h"
-#include "Actors/UI/AimingReticule.h"
 
-#include "Components/MeshComponent.h"
-#include "Components/SpriteComponent.h"'
+#include "Animation/Skeleton.h"
+#include "Animation/Animation.h"
 
-#include "Renderer/Texture.h"
-#include "Renderer/Renderer.h"
 
-#include "Systems/AudioSystem.h"
+#include "SDL/SDL.h"
+#include "SDL/SDL_ttf.h"
+#include "RapidJSON/document.h"
 
+#include <fstream>
+#include <sstream>
 #include <algorithm>
-#include <iostream>
-
-#include "SDL/SDL_image.h"
-#include "glad/glad.h"
-
-
-#include "WindowSize.h"
 
 Game::Game()
-	:mRenderer(nullptr),
-	mAudioSystem(nullptr),
-	mPhysWorld(nullptr),
-	mIsRunning(true), 
-	mUpdatingActors(false)
+:mRenderer(nullptr)
+,mAudioSystem(nullptr)
+,mPhysWorld(nullptr)
+,mGameState(EGameplay)
+,mUpdatingActors(false)
 {
+	
 }
 
 void Game::AddPlane(PlaneActor* plane)
@@ -55,8 +60,8 @@ void Game::RemovePlane(PlaneActor* plane)
 
 bool Game::Initialize()
 {
-	// Iniotialize SDL library
-	int sdlResult = SDL_Init(SDL_INIT_VIDEO);
+	// Initialize SDL library
+	int sdlResult = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 
 	// If sdl initialization fails return false
 	if (sdlResult != 0)
@@ -90,16 +95,23 @@ bool Game::Initialize()
 	// Create the physics world
 	mPhysWorld = new PhysWorld(this);
 	
+	// Initialize SDL_ttf
+	if (TTF_Init() != 0)
+	{
+		SDL_Log("Failed to initialize SDL_ttf");
+		return false;
+	}
+
 	LoadData();
 
 	mTicksCount = SDL_GetTicks();
-
+	
 	return true;
 }
 
 void Game::RunLoop()
 {
-	while (mIsRunning)
+	while (mGameState != EQuit)
 	{
 		ProcessInput();
 		UpdateGame();
@@ -107,74 +119,73 @@ void Game::RunLoop()
 	}
 }
 
-void Game::Shutdown()
-{
-	// Because ~Actor calls RemoveActor, use a different style loop
-	UnloadData();
-	if (mRenderer)
-	{
-		mRenderer->Shutdown();
-	}
-	if (mAudioSystem)
-	{
-		mAudioSystem->Shutdown();
-	}
-	SDL_Quit();
-}
-
 void Game::ProcessInput()
 {
 	SDL_Event event;
-
-	// While there still events in the queue
 	while (SDL_PollEvent(&event))
 	{
 		switch (event.type)
 		{
-			// Handle different event types here
-
-		case SDL_QUIT:
-			mIsRunning = false;
-			break;
-
-		// This fires when a key's initially pressed
-		case SDL_KEYDOWN:
-			if (!event.key.repeat)
-			{
-				HandleKeyPress(event.key.keysym.sym);
-			}
-			break;
-
-		case SDL_MOUSEBUTTONDOWN:
-			HandleKeyPress(event.button.button);
-			break;
-		default:
-			break;
-
+			case SDL_QUIT:
+				mGameState = EQuit;
+				break;
+			// This fires when a key's initially pressed
+			case SDL_KEYDOWN:
+				if (!event.key.repeat)
+				{
+					if (mGameState == EGameplay)
+					{
+						HandleKeyPress(event.key.keysym.sym);
+					}
+					else if (!mUIStack.empty())
+					{
+						mUIStack.back()->
+							HandleKeyPress(event.key.keysym.sym);
+					}
+				}
+				break;
+			case SDL_MOUSEBUTTONDOWN:
+				if (mGameState == EGameplay)
+				{
+					HandleKeyPress(event.button.button);
+				}
+				else if (!mUIStack.empty())
+				{
+					mUIStack.back()->
+						HandleKeyPress(event.button.button);
+				}
+				break;
+			default:
+				break;
 		}
 	}
-
-	// Get State of Keyboard
-	const Uint8* keyState = SDL_GetKeyboardState(NULL);
-
-	// If escape is pressed, also end loop
-	if (keyState[SDL_SCANCODE_ESCAPE])
+	
+	const Uint8* state = SDL_GetKeyboardState(NULL);
+	if (mGameState == EGameplay)
 	{
-		mIsRunning = false;
+		for (auto actor : mActors)
+		{
+			if (actor->GetState() == Actor::EActive)
+			{
+				actor->ProcessInput(state);
+			}
+		}
 	}
-
-	mUpdatingActors = true;
-	for (auto actor : mActors)
+	else if (!mUIStack.empty())
 	{
-		actor->ProcessInput(keyState);
+		mUIStack.back()->ProcessInput(state);
 	}
-	mUpdatingActors = false;
 }
 
 void Game::HandleKeyPress(int key)
 {
 	switch (key)
 	{
+	case SDLK_ESCAPE:
+		// Create pause menu
+		new PauseMenu(this);
+		break;
+
 	case '-':
 	{
 		// Reduce master volume
@@ -195,10 +206,12 @@ void Game::HandleKeyPress(int key)
 		// Play explosion
 		mAudioSystem->PlayEvent("event:/Explosion2D");
 		break;
+
 	case 'p':
 		// Toggle music pause state
 		mMusicEvent.SetPaused(!mMusicEvent.GetPaused());
 		break;
+
 	case 'r':
 		// Stop or start reverb snapshot
 		if (!mReverbSnap.IsValid())
@@ -210,26 +223,42 @@ void Game::HandleKeyPress(int key)
 			mReverbSnap.Stop();
 		}
 		break;
+
 	case '1':
 		// Set default footstep surface
 		mFPSActor->SetFootstepSurface(0.0f);
 		break;
+
 	case '2':
 		// Set grass footstep surface
 		mFPSActor->SetFootstepSurface(0.5f);
 		break;
-	case SDL_BUTTON_LEFT:
-	{
-		// Fire weapon
-		mFPSActor->Shoot();
-		break;
-	}
+
 	case '3':
 	case '4':
 	case '5':
 	case '6':
 		ChangeCamera(key);
 		break;
+
+	case '7':
+	{
+		// Load English text
+		LoadText("Assets/English.gptext");
+		break;
+	}
+	case '8':
+	{
+		// Load Russian text
+		LoadText("Assets/Russian.gptext");
+		break;
+	}
+	case SDL_BUTTON_LEFT:
+	{
+		// Fire weapon
+		mFPSActor->Shoot();
+		break;
+	}
 	default:
 		break;
 	}
@@ -237,6 +266,7 @@ void Game::HandleKeyPress(int key)
 
 void Game::UpdateGame()
 {
+	// Compute delta time
 	// Wait until 16ms has elapsed since last frame
 	while (!SDL_TICKS_PASSED(SDL_GetTicks(), mTicksCount + 16));
 
@@ -251,43 +281,66 @@ void Game::UpdateGame()
 	// Update tick counts (for next frame)
 	mTicksCount = SDL_GetTicks();
 
-	// Update all Actors
-	mUpdatingActors = true;
-	for (auto actor : mActors)
+	if (mGameState == EGameplay)
 	{
-		actor->Update(deltatime);
-	}
-	mUpdatingActors = false;
-
-	// move any pending actors to mActors
-	for (auto pending : mPendingActors)
-	{
-		pending->ComputeWorldTransform();
-
-		mActors.emplace_back(pending);
-	}
-	mPendingActors.clear();
-
-	// Add any dead actors to a temp vector
-	std::vector<Actor*> deadActors;
-
-	for (auto actor : mActors)
-	{
-		if (actor->GetState() == Actor::EDead)
+		// Update all actors
+		mUpdatingActors = true;
+		for (auto actor : mActors)
 		{
-			deadActors.emplace_back(actor);
+			actor->Update(deltatime);
 		}
-	}
+		mUpdatingActors = false;
 
-	// Delete dead actors (which removes them from mActors)
-	for (auto actor : deadActors)
-	{
-		delete actor;
+		// Move any pending actors to mActors
+		for (auto pending : mPendingActors)
+		{
+			pending->ComputeWorldTransform();
+			mActors.emplace_back(pending);
+		}
+		mPendingActors.clear();
+
+		// Add any dead actors to a temp vector
+		std::vector<Actor*> deadActors;
+		for (auto actor : mActors)
+		{
+			if (actor->GetState() == Actor::EDead)
+			{
+				deadActors.emplace_back(actor);
+			}
+		}
+
+		// Delete dead actors (which removes them from mActors)
+		for (auto actor : deadActors)
+		{
+			delete actor;
+		}
 	}
 
 	// Update audio system
 	mAudioSystem->Update(deltatime);
-
+	
+	// Update UI screens
+	for (auto ui : mUIStack)
+	{
+		if (ui->GetState() == UIScreen::EActive)
+		{
+			ui->Update(deltatime);
+		}
+	}
+	// Delete any UIScreens that are closed
+	auto iter = mUIStack.begin();
+	while (iter != mUIStack.end())
+	{
+		if ((*iter)->GetState() == UIScreen::EClosing)
+		{
+			delete *iter;
+			iter = mUIStack.erase(iter);
+		}
+		else
+		{
+			++iter;
+		}
+	}
 }
 
 void Game::GenerateOutput()
@@ -297,30 +350,34 @@ void Game::GenerateOutput()
 
 void Game::LoadData()
 {
+	// Load English text
+	LoadText("Assets/English.gptext");
+
 	// Create actors
-	Actor* a = new Actor(this);
+	Actor* a = nullptr;
+	Quaternion q;
+	//MeshComponent* mc = nullptr;
 
 	// Setup floor
 	const float start = -1250.0f;
 	const float size = 250.0f;
-
 	for (int i = 0; i < 10; i++)
 	{
 		for (int j = 0; j < 10; j++)
 		{
 			a = new PlaneActor(this);
-			a->SetPosition(Vector3(start + i * size, start + j * size, -200.0f));
+			a->SetPosition(Vector3(start + i * size, start + j * size, -100.0f));
 		}
 	}
 
 	// Left/right walls
-	Quaternion q = Quaternion(Vector3::UnitX, Math::PiOver2);
+	q = Quaternion(Vector3::UnitX, Math::PiOver2);
 	for (int i = 0; i < 10; i++)
 	{
 		a = new PlaneActor(this);
 		a->SetPosition(Vector3(start + i * size, start - size, 0.0f));
 		a->SetRotation(q);
-
+		
 		a = new PlaneActor(this);
 		a->SetPosition(Vector3(start + i * size, -start + size, 0.0f));
 		a->SetRotation(q);
@@ -351,18 +408,9 @@ void Game::LoadData()
 	// Cube actor
 	mCube = new Cube(this);
 
-	// UI ELEMENTS
-	// Health Bar
-	mHealthBar = new HealthBar(this);
-	// Rader
-	mRadar = new Radar(this);
-	// AimingReticule
-	//mAimingReticule = new AimingReticule(this);
-	a = new Actor(this);
-	a->SetScale(2.0f);
-	mCrosshair = new SpriteComponent(a);
-	mCrosshair->SetTexture(mRenderer->GetTexture("Assets/Crosshair.png"));
-
+	// UI elements
+	mHUD = new HUD(this);
+	
 	// Start music
 	mMusicEvent = mAudioSystem->PlayEvent("event:/Music");
 
@@ -377,7 +425,7 @@ void Game::LoadData()
 	mOrbitActor = new OrbitActor(this);
 	mSplineActor = new SplineActor(this);
 
-	ChangeCamera('3');
+	ChangeCamera('4');
 
 	// Create target actors
 	a = new TargetActor(this);
@@ -388,6 +436,12 @@ void Game::LoadData()
 	a->SetPosition(Vector3(1450.0f, -500.0f, 200.0f));
 	a = new TargetActor(this);
 	a->SetPosition(Vector3(1450.0f, 500.0f, 200.0f));
+	a = new TargetActor(this);
+	a->SetPosition(Vector3(0.0f, -1450.0f, 200.0f));
+	a->SetRotation(Quaternion(Vector3::UnitZ, Math::PiOver2));
+	a = new TargetActor(this);
+	a->SetPosition(Vector3(0.0f, 1450.0f, 200.0f));
+	a->SetRotation(Quaternion(Vector3::UnitZ, -Math::PiOver2));
 }
 
 void Game::UnloadData()
@@ -399,15 +453,58 @@ void Game::UnloadData()
 		delete mActors.back();
 	}
 
+	// Clear the UI stack
+	while (!mUIStack.empty())
+	{
+		delete mUIStack.back();
+		mUIStack.pop_back();
+	}
+
 	if (mRenderer)
 	{
 		mRenderer->UnloadData();
 	}
+
+	// Unload fonts
+	for (auto f : mFonts)
+	{
+		f.second->Unload();
+		delete f.second;
+	}
+
+	// Unload skeletons
+	for (auto s : mSkeletons)
+	{
+		delete s.second;
+	}
+
+	// Unload animations
+	for (auto a : mAnims)
+	{
+		delete a.second;
+	}
+}
+
+void Game::Shutdown()
+{
+	// Because ~Actor calls RemoveActor, use a different style loop
+	UnloadData();
+	TTF_Quit();
+	delete mPhysWorld;
+	if (mRenderer)
+	{
+		mRenderer->Shutdown();
+	}
+	if (mAudioSystem)
+	{
+		mAudioSystem->Shutdown();
+	}
+	SDL_Quit();
 }
 
 void Game::AddActor(Actor* actor)
 {
-	// if updating actors need to add to pending Actors
+	// If we're updating actors, need to add to pending
 	if (mUpdatingActors)
 	{
 		mPendingActors.emplace_back(actor);
@@ -439,12 +536,139 @@ void Game::RemoveActor(Actor* actor)
 	}
 }
 
+void Game::PushUI(UIScreen* screen)
+{
+	mUIStack.emplace_back(screen);
+}
+
+Font* Game::GetFont(const std::string& fileName)
+{
+	auto iter = mFonts.find(fileName);
+	if (iter != mFonts.end())
+	{
+		return iter->second;
+	}
+	else
+	{
+		Font* font = new Font(this);
+		if (font->Load(fileName))
+		{
+			mFonts.emplace(fileName, font);
+		}
+		else
+		{
+			font->Unload();
+			delete font;
+			font = nullptr;
+		}
+		return font;
+	}
+}
+
+void Game::LoadText(const std::string& fileName)
+{
+	// Clear the existing map, if already loaded
+	mText.clear();
+	// Try to open the file
+	std::ifstream file(fileName);
+	if (!file.is_open())
+	{
+		SDL_Log("Text file %s not found", fileName.c_str());
+		return;
+	}
+	// Read the entire file to a string stream
+	std::stringstream fileStream;
+	fileStream << file.rdbuf();
+	std::string contents = fileStream.str();
+	// Open this file in rapidJSON
+	rapidjson::StringStream jsonStr(contents.c_str());
+	rapidjson::Document doc;
+	doc.ParseStream(jsonStr);
+	if (!doc.IsObject())
+	{
+		SDL_Log("Text file %s is not valid JSON", fileName.c_str());
+		return;
+	}
+	// Parse the text map
+	const rapidjson::Value& actions = doc["TextMap"];
+	for (rapidjson::Value::ConstMemberIterator itr = actions.MemberBegin();
+		itr != actions.MemberEnd(); ++itr)
+	{
+		if (itr->name.IsString() && itr->value.IsString())
+		{
+			mText.emplace(itr->name.GetString(), 
+				itr->value.GetString());
+		}
+	}
+}
+
+const std::string& Game::GetText(const std::string& key)
+{
+	static std::string errorMsg("**KEY NOT FOUND**");
+	// Find this text in the map, if it exists
+	auto iter = mText.find(key);
+	if (iter != mText.end())
+	{
+		return iter->second;
+	}
+	else
+	{
+		return errorMsg;
+	}
+}
+
+Skeleton* Game::GetSkeleton(const std::string& fileName)
+{
+	auto iter = mSkeletons.find(fileName);
+	if (iter != mSkeletons.end())
+	{
+		return iter->second;
+	}
+	else
+	{
+		Skeleton* sk = new Skeleton();
+		if (sk->Load(fileName))
+		{
+			mSkeletons.emplace(fileName, sk);
+		}
+		else
+		{
+			delete sk;
+			sk = nullptr;
+		}
+		return sk;
+	}
+}
+
+Animation* Game::GetAnimation(const std::string& fileName)
+{
+	auto iter = mAnims.find(fileName);
+	if (iter != mAnims.end())
+	{
+		return iter->second;
+	}
+	else
+	{
+		Animation* anim = new Animation();
+		if (anim->Load(fileName))
+		{
+			mAnims.emplace(fileName, anim);
+		}
+		else
+		{
+			delete anim;
+			anim = nullptr;
+		}
+		return anim;
+	}
+}
+
 void Game::ChangeCamera(int mode)
 {
 	// Disable everything
 	mFPSActor->SetState(Actor::EPaused);
 	mFPSActor->SetVisible(false);
-	mCrosshair->SetVisible(false);
+	// mCrosshair->SetVisible(false);
 	mFollowActor->SetState(Actor::EPaused);
 	mFollowActor->SetVisible(false);
 	mOrbitActor->SetState(Actor::EPaused);
@@ -458,7 +682,7 @@ void Game::ChangeCamera(int mode)
 	default:
 		mFPSActor->SetState(Actor::EActive);
 		mFPSActor->SetVisible(true);
-		mCrosshair->SetVisible(true);
+		// mCrosshair->SetVisible(true);
 		break;
 	case '4':
 		mFollowActor->SetState(Actor::EActive);

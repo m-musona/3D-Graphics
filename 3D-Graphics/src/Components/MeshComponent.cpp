@@ -9,11 +9,12 @@
 #include "../Renderer/Texture.h"
 #include "../Renderer/VertexArray.h"
 
-MeshComponent::MeshComponent(Actor* owner)
+MeshComponent::MeshComponent(Actor* owner, bool isSkeletal)
 	:Component(owner),
 	mMesh(nullptr),
 	mTextureIndex(0),
-	mVisible(true)
+	mVisible(true),
+	mIsSkeletal(isSkeletal)
 {
 	mOwner->GetGame()->GetRenderer()->AddMeshComp(this);
 }
@@ -35,9 +36,9 @@ void MeshComponent::Draw(Shader* shader)
 
 		// Set the active texture
 		Texture* texture = mMesh->GetTexture(mTextureIndex);
-		if (texture) 
-		{ 
-			texture->SetActive(); 
+		if (texture)
+		{
+			texture->SetActive();
 		}
 
 		// Set the mesh's vertex array as active

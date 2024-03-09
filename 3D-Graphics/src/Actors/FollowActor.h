@@ -13,5 +13,6 @@ public:
 private:
 	class MoveComponent* mMoveComp;
 	class FollowCamera* mCameraComp;
-	class MeshComponent* mMeshComp;
+	class SkeletalMeshComponent* mMeshComp;
+	bool mMoving;
 };

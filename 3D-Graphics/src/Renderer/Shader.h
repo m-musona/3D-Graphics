@@ -17,6 +17,8 @@ public:
 	void SetActive();
 	// Sets a Matrix uniform
 	void SetMatrixUniform(const char* name, const Matrix4& matrix);
+	// Sets an array of matrix uniforms
+	void SetMatrixUniforms(const char* name, Matrix4* matrices, unsigned count);
 	// Sets a Vector uniform
 	void SetVectorUniform(const char* name, const Vector3& vector);
 	// Sets a Matrix uniform

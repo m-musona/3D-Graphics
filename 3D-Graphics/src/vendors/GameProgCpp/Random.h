@@ -8,7 +8,7 @@
 
 #pragma  once
 #include <random>
-#include "Math.h"
+#include "GameProgCpp/Math.h"
 
 class Random
 {

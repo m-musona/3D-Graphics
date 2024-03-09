@@ -1,6 +1,5 @@
 #include "MoveComponent.h"
 #include "../Actor.h"
-#include "../WindowSize.h"
 
 MoveComponent::MoveComponent(Actor* owner, int updateOrder)
 	: Component(owner, updateOrder),

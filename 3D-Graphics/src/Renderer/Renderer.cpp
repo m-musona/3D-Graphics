@@ -7,6 +7,10 @@
 
 #include "../Components/SpriteComponent.h"
 #include "../Components/MeshComponent.h"
+#include "../Components/SkeletalMeshComponent.h"
+
+#include "../UIScreen.h"
+#include "../Game.h"
 
 #include <algorithm>
 #include <iostream>
@@ -16,7 +20,8 @@
 Renderer::Renderer(Game* game)
 	:mGame(game),
 	mSpriteShader(nullptr),
-	mMeshShader(nullptr)
+	mMeshShader(nullptr),
+	mSkinnedShader(nullptr)
 {
 }
 
@@ -51,7 +56,7 @@ bool Renderer::Initialize(float screenWidth, float screenHeight)
 
 	// Create window
 	mWindow = SDL_CreateWindow(
-		"Space Game", // Window Title
+		"3D FPS Game", // Window Title
 		0, // Top left x-coordinate of window
 		0, // Top left y-coordinate of window
 		static_cast<int>(screenWidth), // Width of window
@@ -164,6 +169,20 @@ void Renderer::Draw()
 		}
 	}
 
+	// Draw any skinned meshes now
+	mSkinnedShader->SetActive();
+	// Update view-projection matrix
+	mSkinnedShader->SetMatrixUniform("uViewProj", mView * mProjection);
+	// Update lighting uniforms
+	SetLightUniforms(mSkinnedShader);
+	for (auto sk : mSkeletalMeshes)
+	{
+		if (sk->GetVisible())
+		{
+			sk->Draw(mSkinnedShader);
+		}
+	}
+
 	// Disable depth buffering
 	glDisable(GL_DEPTH_TEST);
 	// Enable alpha blending on the color buffer
@@ -187,6 +206,12 @@ void Renderer::Draw()
 		{
 			sprite->Draw(mSpriteShader);
 		}
+	}
+
+	// Draw any UI screens
+	for (auto ui : mGame->GetUIStack())
+	{
+		ui->Draw(mSpriteShader);
 	}
 
 	//Step 3: Swap the front buffer and back buffer
@@ -275,13 +300,30 @@ Mesh* Renderer::GetMesh(const std::string& fileName)
 
 void Renderer::AddMeshComp(MeshComponent* mesh)
 {
-	mMeshComps.emplace_back(mesh);
+	if (mesh->GetIsSkeletal())
+	{
+		SkeletalMeshComponent* sk = static_cast<SkeletalMeshComponent*>(mesh);
+		mSkeletalMeshes.emplace_back(sk);
+	}
+	else
+	{
+		mMeshComps.emplace_back(mesh);
+	}
 }
 
 void Renderer::RemoveMeshComp(MeshComponent* mesh)
 {
-	auto iter = std::find(mMeshComps.begin(), mMeshComps.end(), mesh);
-	mMeshComps.erase(iter);
+	if (mesh->GetIsSkeletal())
+	{
+		SkeletalMeshComponent* sk = static_cast<SkeletalMeshComponent*>(mesh);
+		auto iter = std::find(mSkeletalMeshes.begin(), mSkeletalMeshes.end(), sk);
+		mSkeletalMeshes.erase(iter);
+	}
+	else
+	{
+		auto iter = std::find(mMeshComps.begin(), mMeshComps.end(), mesh);
+		mMeshComps.erase(iter);
+	}
 }
 
 void Renderer::SetLightUniforms(Shader* shader)
@@ -341,6 +383,26 @@ bool Renderer::LoadShaders()
 	);
 
 	mMeshShader->SetMatrixUniform("uViewProj", mView * mProjection);
+
+	// Create skinned shader
+	mSkinnedShader = new Shader();
+	if (!mSkinnedShader->Load("Shaders/Skinned.vert", "Shaders/Phong.frag"))
+	{
+		return false;
+	}
+
+	mSkinnedShader->SetActive();
+	// Set the view-projection matrix
+	mView = Matrix4::CreateLookAt(Vector3::Zero, Vector3::UnitX, Vector3::UnitZ);
+	mProjection = Matrix4::CreatePerspectiveFOV(
+		Math::ToRadians(70.0f),
+		mScreenWidth, 
+		mScreenHeight, 
+		10.0f, 
+		10000.0f
+	);
+	mSkinnedShader->SetMatrixUniform("uViewProj", mView * mProjection);
+
 	return true;
 }
 
@@ -360,7 +422,7 @@ void Renderer::CreateSpriteVerts()
 		2, 3, 0
 	};
 
-	mSpriteVerts = new VertexArray(vertices, 4, indices, 6);
+	mSpriteVerts = new VertexArray(vertices, 4, VertexArray::PosNormTex, indices, 6);
 }
 
 Vector3 Renderer::Unproject(const Vector3& screenPoint) const

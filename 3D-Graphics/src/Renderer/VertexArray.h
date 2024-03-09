@@ -1,9 +1,17 @@
 #pragma once
 
+
 class VertexArray
 {
 public:
-	VertexArray(const float* verts, unsigned int numVerts, const unsigned int* indices, unsigned int numIndices);
+	// Different supported vertex layouts
+	enum Layout
+	{
+		PosNormTex,
+		PosNormSkinTex
+	};
+
+	VertexArray(const void* verts, unsigned int numVerts, Layout layout, const unsigned int* indices, unsigned int numIndices);
 	~VertexArray();
 
 	// Activate this vertex array (so we can draw it)
@@ -11,7 +19,7 @@ public:
 
 	unsigned int GetNumIndices() const { return mNumIndices; }
 	unsigned int GetNumVerts() const { return mNumVerts; }
-	
+
 private:
 	// How many vertices in the vertex buffer
 	unsigned int mNumVerts;

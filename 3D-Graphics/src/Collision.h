@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vendors/GameProgCpp/Math.h"
+#include "GameProgCpp/Math.h"
 #include <vector>
 
 struct LineSegment

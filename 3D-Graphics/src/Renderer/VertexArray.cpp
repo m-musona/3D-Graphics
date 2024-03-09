@@ -1,7 +1,7 @@
 #include "VertexArray.h"
 #include "glad/glad.h"
 
-VertexArray::VertexArray(const float* verts, unsigned int numVerts, const unsigned int* indices, unsigned int numIndices)
+VertexArray::VertexArray(const void* verts, unsigned int numVerts, Layout layout, const unsigned int* indices, unsigned int numIndices)
 	: mNumVerts(numVerts),
 	mNumIndices(numIndices)
 {
@@ -9,14 +9,20 @@ VertexArray::VertexArray(const float* verts, unsigned int numVerts, const unsign
 	glGenVertexArrays(1, &mVertexArray);
 	glBindVertexArray(mVertexArray);
 
+	// If layout is PosNormSkinTex then change vertexSize
+	unsigned vertexSize = 8 * sizeof(float);
+	if (layout == PosNormSkinTex)
+	{
+		vertexSize = 8 * sizeof(float) + 8 * sizeof(char);
+	}
+
 	// Create vertex buffer
 	glGenBuffers(1, &mVertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER /* Means Use As Vertex Buffer */, mVertexBuffer);
-
 	// Copy verts into vertex buffer
 	glBufferData(
 		GL_ARRAY_BUFFER,				// the active buffer type to write to
-		numVerts * 8 * sizeof(float),	// number of bytes to copy
+		numVerts * vertexSize,	// number of bytes to copy
 		verts,							// Source to copy from (pointer)
 		GL_STATIC_DRAW					// How will we use this data
 	);
@@ -24,7 +30,6 @@ VertexArray::VertexArray(const float* verts, unsigned int numVerts, const unsign
 	// Create index buffer
 	glGenBuffers(1, &mIndexBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER /* Means Use As Index Buffer */, mIndexBuffer);
-
 	// Copy indices into index buffer
 	glBufferData(
 		GL_ELEMENT_ARRAY_BUFFER,			// the active buffer type to write to
@@ -34,45 +39,75 @@ VertexArray::VertexArray(const float* verts, unsigned int numVerts, const unsign
 	);
 
 	// SPECIFY VERTEX LAYOUT
+	// Specify the vertex attributes
+	if (layout == PosNormTex)
+	{
+		// Position is 3 floats
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, vertexSize, 0);
 
-	// POSITION IS 3 FLoatas
-	// Enable first vertex attribute
-	glEnableVertexAttribArray(0);
-	// Specify size, type and formaat of the attribute
-	glVertexAttribPointer(
-		0,					// Attribute index (0 for the first one)
-		3,					// Number of components (3 in this case)
-		GL_FLOAT,			// Type of components
-		GL_FALSE,			// (Only used for integral types)
-		sizeof(float) * 8,	// Stride (usually size of each vertex)
-		0					// Offset from start of vertex to this attribute
-	);
+		// Normal is 3 floats
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, vertexSize,
+			reinterpret_cast<void*>(sizeof(float) * 3));
 
-	// NORMAL IS 3 floats
-	// Enable first vertex attribute
-	glEnableVertexAttribArray(1);
-	// Specify size, type and formaat of the attribute
-	glVertexAttribPointer(
-		1,											// Attribute index
-		3,											// Number of components (2 because UV)
-		GL_FLOAT,									// Type of components
-		GL_FALSE,									// (Only used for integral types)
-		sizeof(float) * 8,							// Stride (usually size of each vertex)
-		reinterpret_cast<void*>(sizeof(float) * 3)	// Offset pointer
-	);
+		// Texture coordinates is 2 floats
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, vertexSize,
+			reinterpret_cast<void*>(sizeof(float) * 6));
+	}
+	else if (layout == PosNormSkinTex)
+	{
+		// POSITION IS 3 Floats
+		// Enable first vertex attribute
+		glEnableVertexAttribArray(0);
+		// Specify size, type and format of the attribute
+		glVertexAttribPointer(
+			0,					// Attribute index (0 for the first one)
+			3,					// Number of components (3 in this case)
+			GL_FLOAT,			// Type of components
+			GL_FALSE,			// (Only used for integral types)
+			vertexSize,			// Stride (usually size of each vertex)
+			0					// Offset from start of vertex to this attribute
+		);
 
-	// TEXTURE COORDINATES IS 2 floats
-	// Enable first vertex attribute
-	glEnableVertexAttribArray(2);
-	// Specify size, type and formaat of the attribute
-	glVertexAttribPointer(
-		2,											// Attribute index
-		2,											// Number of components (2 because UV)
-		GL_FLOAT,									// Type of components
-		GL_FALSE,									// (Only used for integral types)
-		sizeof(float) * 8,							// Stride (usually size of each vertex)
-		reinterpret_cast<void*>(sizeof(float) * 6)	// Offset pointer
-	);
+		// NORMAL IS 3 floats
+		// Enable first vertex attribute
+		glEnableVertexAttribArray(1);
+		// Specify size, type and format of the attribute
+		glVertexAttribPointer(
+			1,											// Attribute index
+			3,											// Number of components (2 because UV)
+			GL_FLOAT,									// Type of components
+			GL_FALSE,									// (Only used for integral types)
+			vertexSize,									// Stride (usually size of each vertex)
+			reinterpret_cast<void*>(sizeof(float) * 3)	// Offset pointer
+		);
+
+		// Skinning indices (keep as ints)
+		glEnableVertexAttribArray(2);
+		glVertexAttribIPointer(2, 4, GL_UNSIGNED_BYTE, vertexSize,
+			reinterpret_cast<void*>(sizeof(float) * 6));
+
+		// Skinning weights (convert to floats)
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_TRUE, vertexSize,
+			reinterpret_cast<void*>(sizeof(float) * 6 + sizeof(char) * 4));
+
+		// TEXTURE COORDINATES IS 2 floats
+		// Enable first vertex attribute
+		glEnableVertexAttribArray(4);
+		// Specify size, type and format of the attribute
+		glVertexAttribPointer(
+			4,																// Attribute index
+			2,																// Number of components (2 because UV)
+			GL_FLOAT,														// Type of components
+			GL_FALSE,														// (Only used for integral types)
+			vertexSize,														// Stride (usually size of each vertex)
+			reinterpret_cast<void*>(sizeof(float) * 6 + sizeof(char) * 8)	// Offset pointer
+		);
+	}
+
 }
 
 VertexArray::~VertexArray()

@@ -47,9 +47,9 @@ public:
 
 	Vector3 GetForward() const { return Vector3::Transform(Vector3::UnitX, mRotation); }
 
-	Vector3 GetRight() const { 
+	Vector3 GetRight() const {
 		// Rotate right axis using quaternian rotation
-		return Vector3::Transform(Vector3::UnitY, mRotation); 
+		return Vector3::Transform(Vector3::UnitY, mRotation);
 	}
 
 	void RotateToNewForward(const Vector3& forward);

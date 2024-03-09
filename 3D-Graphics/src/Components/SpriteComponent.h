@@ -1,7 +1,7 @@
 #pragma once
 #include "../Component.h"
 #include "SDL/SDL.h"
-#include "../Renderer/Texture.h"
+// #include "../Renderer/Texture.h"
 
 class SpriteComponent : public Component
 {
@@ -26,7 +26,7 @@ protected:
 
 	// Draw order used for painter's algorithm
 	int mDrawOrder;
-	
+
 	// WIdth/Height of texture
 	int mTextureHeight;
 	int mTextureWidth;

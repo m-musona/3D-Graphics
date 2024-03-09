@@ -83,7 +83,7 @@
 #    define _USE_MATH_DEFINES
 #  endif
 # endif
-# include <math.h>
+# include <GameProgCpp/Math.h>
 #endif
 #ifdef HAVE_FLOAT_H
 # include <float.h>

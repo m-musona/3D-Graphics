@@ -1,3 +1,4 @@
+// Request GLSL 4.6
 #version 460
 
 // Uniforms for world transform and view-proj

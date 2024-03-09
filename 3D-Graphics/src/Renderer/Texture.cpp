@@ -1,13 +1,14 @@
 #include "Texture.h"
 
-// #include "SOIL/SOIL.h"
 #include "STB_Image/stb_image.h"
 #include "glad/glad.h"
 #include "SDL/SDL.h"
 
+#include <iostream>
+
 Texture::Texture()
-	:mTextureID(0), 
-	mWidth(0), 
+	:mTextureID(0),
+	mWidth(0),
 	mHeight(0)
 {
 }
@@ -23,9 +24,9 @@ bool Texture::Load(const std::string& fileName)
 	stbi_set_flip_vertically_on_load(0);
 
 	unsigned char* image = stbi_load(
-		fileName.c_str(), 
-		&mWidth, 
-		&mHeight, 
+		fileName.c_str(),
+		&mWidth,
+		&mHeight,
 		&channels,
 		4
 	);
@@ -76,6 +77,34 @@ bool Texture::Load(const std::string& fileName)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	return true;
+}
+
+void Texture::CreateFromSurface(SDL_Surface* surface)
+{
+	mWidth = surface->w;
+	mHeight = surface->h;
+
+	// Generate a GL texture
+	glGenTextures(1, &mTextureID);
+	glBindTexture(GL_TEXTURE_2D, mTextureID);
+	glTexImage2D(
+		GL_TEXTURE_2D, 
+		0, 
+		GL_RGBA, 
+		mWidth, 
+		mHeight, 
+		0, 
+		GL_RGBA, // GL_BGRA
+		GL_UNSIGNED_BYTE, 
+		surface->pixels
+	);
+
+	// Use linear filtering
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+
 }
 
 void Texture::Unload()
