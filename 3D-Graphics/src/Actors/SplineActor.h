@@ -10,6 +10,9 @@ public:
 	void ActorInput(const uint8_t* keys) override;
 
 	void RestartSpline();
+
+	TypeID GetType() const override { return TSplineActor; }
+
 private:
 	class SplineCamera* mCameraComp;
 };

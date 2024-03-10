@@ -2,6 +2,8 @@
 
 #include "../Game.h"
 #include "../Renderer/Renderer.h"
+#include "../Renderer/Mesh.h"
+
 #include "../Components/MeshComponent.h"
 #include "../Components/AudioComponent.h"
 #include "../Components/MoveComponent.h"
@@ -39,4 +41,14 @@ void Sphere::UpdateActor(float deltaTime)
 		mForwardSpeed += speed;
 	}
 	mMoveComp->SetForwardSpeed(mForwardSpeed);
+}
+
+void Sphere::LoadProperties(const rapidjson::Value& inObj)
+{
+	Actor::LoadProperties(inObj);
+}
+
+void Sphere::SaveProperties(rapidjson::Document::AllocatorType& alloc, rapidjson::Value& inObj) const
+{
+	Actor::SaveProperties(alloc, inObj);
 }

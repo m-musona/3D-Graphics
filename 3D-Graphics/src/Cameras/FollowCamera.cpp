@@ -1,6 +1,7 @@
 #include "FollowCamera.h"
 
 #include "../Actor.h"
+#include "../LevelLoader.h"
 
 FollowCamera::FollowCamera(Actor* owner)
 	:CameraComponent(owner),
@@ -54,6 +55,30 @@ void FollowCamera::SnapToIdeal()
 	Matrix4 view = Matrix4::CreateLookAt(mActualPos, target, Vector3::UnitZ);
 
 	SetViewMatrix(view);
+}
+
+void FollowCamera::LoadProperties(const rapidjson::Value& inObj)
+{
+	CameraComponent::LoadProperties(inObj);
+
+	JsonHelper::GetVector3(inObj, "actualPos", mActualPos);
+	JsonHelper::GetVector3(inObj, "velocity", mVelocity);
+	JsonHelper::GetFloat(inObj, "horzDist", mHorzDist);
+	JsonHelper::GetFloat(inObj, "vertDist", mVertDist);
+	JsonHelper::GetFloat(inObj, "targetDist", mTargetDist);
+	JsonHelper::GetFloat(inObj, "springConstant", mSpringConstant);
+}
+
+void FollowCamera::SaveProperties(rapidjson::Document::AllocatorType& alloc, rapidjson::Value& inObj) const
+{
+	CameraComponent::SaveProperties(alloc, inObj);
+
+	JsonHelper::AddVector3(alloc, inObj, "actualPos", mActualPos);
+	JsonHelper::AddVector3(alloc, inObj, "velocity", mVelocity);
+	JsonHelper::AddFloat(alloc, inObj, "horzDist", mHorzDist);
+	JsonHelper::AddFloat(alloc, inObj, "vertDist", mVertDist);
+	JsonHelper::AddFloat(alloc, inObj, "targetDist", mTargetDist);
+	JsonHelper::AddFloat(alloc, inObj, "springConstant", mSpringConstant);
 }
 
 Vector3 FollowCamera::ComputeCameraPos() const

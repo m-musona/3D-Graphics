@@ -9,6 +9,8 @@ public:
 
 	void SetPlayer(Actor* player) { mPlayer = player; }
 	void Update(float deltaTime) override;
+
+	TypeID GetType() const override { return TBallMove; }
 protected:
 	class Actor* mPlayer;
 };

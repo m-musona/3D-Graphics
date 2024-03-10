@@ -28,6 +28,9 @@ public:
 	void SetSpeed(float speed) { mSpeed = speed; }
 	void SetSpline(const Spline& spline) { mPath = spline; }
 	void SetPaused(bool pause) { mPaused = pause; }
+
+	TypeID GetType() const override { return TSplineCamera; }
+
 private:
 	// Spline path camera follows
 	Spline mPath;

@@ -14,6 +14,8 @@ public:
 	void Update(float deltaTime) override;
 	void OnUpdateWorldTransform() override;
 
+	TypeID GetType() const override { return TAudioComponent; }
+
 	SoundEvent PlayEvent(const std::string& name);
 	void StopAllEvents();
 private:

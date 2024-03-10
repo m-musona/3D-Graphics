@@ -2,11 +2,30 @@
 
 #include <vector>
 #include "GameProgCpp/Math.h"
-#include <cstdint>
+#include "RapidJSON/document.h"
+#include "Component.h"
+//#include <cstdint>
 
 class Actor
 {
 public:
+	enum TypeID
+	{
+		TActor = 0,
+		TBallActor,
+		TFollowActor,
+		TFPSActor,
+		TOrbitActor,
+		TSplineActor,
+		TSphere,
+		TCube,
+		TPlaneActor,
+		TTargetActor,
+
+		NUM_ACTOR_TYPES
+	};
+
+	static const char* TypeNames[NUM_ACTOR_TYPES];
 	// Used to track state of actor
 	enum State
 	{
@@ -63,6 +82,41 @@ public:
 	// Add/Remove components
 	void AddComponent(class Component* component);
 	void RemoveComponent(class Component* component);
+
+	// Load/Save
+	virtual void LoadProperties(const rapidjson::Value& inObj);
+	virtual void SaveProperties(rapidjson::Document::AllocatorType& alloc,
+		rapidjson::Value& inObj) const;
+
+	// Create an actor with specified properties
+	template <typename T>
+	static Actor* Create(class Game* game, const rapidjson::Value& inObj)
+	{
+		// Dynamically allocate actor of type T
+		T* t = new T(game);
+		// Call LoadProperties on new actor
+		t->LoadProperties(inObj);
+		return t;
+	}
+
+	// Search through component vector for one of type
+	Component* GetComponentOfType(Component::TypeID type)
+	{
+		Component* comp = nullptr;
+		for (Component* c : mComponents)
+		{
+			if (c->GetType() == type)
+			{
+				comp = c;
+				break;
+			}
+		}
+		return comp;
+	}
+
+	virtual TypeID GetType() const { return TActor; }
+
+	const std::vector<Component*>& GetComponents() const { return mComponents; }
 
 private:
 	// Actor's State

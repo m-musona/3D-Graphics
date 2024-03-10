@@ -4,7 +4,8 @@
 #include "../Renderer/Shader.h"
 #include "../Renderer/Renderer.h"
 
-#include "../Actors/FPSActor.h"
+//#include "../Actors/FPSActor.h"
+#include "../Actors/FollowActor.h"
 
 #include "../Components/TargetComponent.h"
 
@@ -61,6 +62,10 @@ void HUD::Draw(Shader* shader)
 	
 	// Health bar
 	DrawTexture(shader, mHealthBar, Vector2((-screenWidth / 2) + 150.0f, (-screenHeight / 2) + 50.0f));
+	 
+	// Draw the mirror (bottom left)
+	Texture* mirror = mGame->GetRenderer()->GetMirrorTexture();
+	DrawTexture(shader, mirror, Vector2((screenWidth / 2) - 180.0f, (-screenHeight / 2) + 120.0f), 1.0f, true);
 }
 
 void HUD::AddTargetComponent(TargetComponent* tc)

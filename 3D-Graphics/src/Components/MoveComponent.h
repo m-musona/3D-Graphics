@@ -17,6 +17,12 @@ public:
 	float GetStrafeSpeed() const { return mStrafeSpeed; }
 	void SetStrafeSpeed(float speed) { mStrafeSpeed = speed; }
 
+	TypeID GetType() const override { return TMoveComponent; }
+
+	void LoadProperties(const rapidjson::Value& inObj) override;
+	void SaveProperties(rapidjson::Document::AllocatorType& alloc,
+		rapidjson::Value& inObj) const override;
+
 private:
 	// Controls Forward Movement (units/seconds)
 	float mForwardSpeed;

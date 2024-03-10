@@ -15,6 +15,13 @@ public:
 	void SetVertDist(float dist) { mVertDist = dist; }
 	void SetTargetDist(float dist) { mTargetDist = dist; }
 	void SetSpringConstant(float spring) { mSpringConstant = spring; }
+
+	TypeID GetType() const override { return TFollowCamera; }
+
+	void LoadProperties(const rapidjson::Value& inObj) override;
+	void SaveProperties(rapidjson::Document::AllocatorType& alloc,
+		rapidjson::Value& inObj) const override;
+
 private:
 	Vector3 ComputeCameraPos() const;
 

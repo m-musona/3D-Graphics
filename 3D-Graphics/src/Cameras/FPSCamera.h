@@ -15,6 +15,9 @@ public:
 
 	void SetPitchSpeed(float speed) { mPitchSpeed = speed; }
 	void SetMaxPitch(float pitch) { mMaxPitch = pitch; }
+
+	TypeID GetType() const override { return TFPSCamera; }
+
 private:
 	// Rotation/sec speed of pitch
 	float mPitchSpeed;

@@ -2,6 +2,8 @@
 
 #include "../Game.h"
 #include "../Renderer/Renderer.h"
+#include "../Renderer/Mesh.h"
+
 #include "../Components/MeshComponent.h"
 
 Cube::Cube(Game* game)
@@ -15,4 +17,15 @@ Cube::Cube(Game* game)
 
 	MeshComponent* meshComp = new MeshComponent(this);
 	meshComp->SetMesh(GetGame()->GetRenderer()->GetMesh("Assets/Cube.gpmesh"));
+}
+
+void Cube::LoadProperties(const rapidjson::Value& inObj)
+{
+	Actor::LoadProperties(inObj);
+	//JsonHelper::GetFloat(inObj, "lifespan", mLifeSpan);
+}
+
+void Cube::SaveProperties(rapidjson::Document::AllocatorType& alloc, rapidjson::Value& inObj) const
+{
+	Actor::SaveProperties(alloc, inObj);
 }

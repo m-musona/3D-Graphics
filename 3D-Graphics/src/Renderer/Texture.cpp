@@ -19,6 +19,7 @@ Texture::~Texture()
 
 bool Texture::Load(const std::string& fileName)
 {
+	mFileName = fileName;
 	int channels = 0;
 
 	stbi_set_flip_vertically_on_load(0);
@@ -72,9 +73,22 @@ bool Texture::Load(const std::string& fileName)
 	// Free image from memory
 	stbi_image_free(image);
 
-	// Enable bilinear filtering
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	// Generate mipmaps for texture
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	// Enable linear filtering
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	// Enable anisotropic filtering, if supported
+	if (GLAD_GL_EXT_texture_filter_anisotropic)
+	{
+		// Get the maximum anisotropy value
+		GLfloat largest;
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &largest);
+		// Enable it
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, largest);
+	}
 
 	return true;
 }
@@ -94,7 +108,7 @@ void Texture::CreateFromSurface(SDL_Surface* surface)
 		mWidth, 
 		mHeight, 
 		0, 
-		GL_RGBA, // GL_BGRA
+		GL_BGRA,
 		GL_UNSIGNED_BYTE, 
 		surface->pixels
 	);
@@ -102,9 +116,24 @@ void Texture::CreateFromSurface(SDL_Surface* surface)
 	// Use linear filtering
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}
 
+void Texture::CreateForRendering(int width, int height, unsigned int format)
+{
+	mWidth = width;
+	mHeight = height;
 
+	// Create the texture id
+	glGenTextures(1, &mTextureID);
+	glBindTexture(GL_TEXTURE_2D, mTextureID);
 
+	// Set the image width/height with null initial data
+	glTexImage2D(GL_TEXTURE_2D, 0, format, mWidth, mHeight, 0, GL_RGB,
+		GL_FLOAT, nullptr);
+
+	// For a texture we'll render to, just use nearest neighbor
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 
 void Texture::Unload()
@@ -112,8 +141,9 @@ void Texture::Unload()
 	glDeleteTextures(1, &mTextureID);
 }
 
-void Texture::SetActive()
+void Texture::SetActive(int index)
 {
+	glActiveTexture(GL_TEXTURE0 + index);
 	glBindTexture(GL_TEXTURE_2D, mTextureID);
 }
 

@@ -21,8 +21,11 @@ public:
 	void SetMatrixUniforms(const char* name, Matrix4* matrices, unsigned count);
 	// Sets a Vector uniform
 	void SetVectorUniform(const char* name, const Vector3& vector);
+	void SetVector2Uniform(const char* name, const Vector2& vector);
 	// Sets a Matrix uniform
 	void SetFloatUniform(const char* name, const float& value);
+	// Sets an integer uniform
+	void SetIntUniform(const char* name, int value);
 private:
 	// Tries to compile the specified shader
 	bool CompileShader(const std::string& fileName,

@@ -1,5 +1,25 @@
 #include "Component.h"
 #include "Actor.h"
+#include "LevelLoader.h"
+
+const char* Component::TypeNames[NUM_COMPONENT_TYPES] = {
+	"Component",
+	"AudioComponent",
+	"BallMove",
+	"BoxCollisionComponent",
+	"CameraComponent",
+	"FollowCamera",
+	"FPSCamera",
+	"OrbitCamera",
+	"SplineCamera",
+	"MeshComponent",
+	"MoveComponent",
+	"SkeletalMeshComponent",
+	"SpriteComponent",
+	"MirrorCamera",
+	"PointLightComponent",
+	"TargetComponent"
+};
 
 Component::Component(Actor* owner, int updateOrder)
 	:mOwner(owner),
@@ -16,4 +36,14 @@ Component::~Component()
 
 void Component::Update(float deltatime)
 {
+}
+
+void Component::LoadProperties(const rapidjson::Value& inObj)
+{
+	JsonHelper::GetInt(inObj, "updateOrder", mUpdateOrder);
+}
+
+void Component::SaveProperties(rapidjson::Document::AllocatorType& alloc, rapidjson::Value& inObj) const
+{
+	JsonHelper::AddInt(alloc, inObj, "updateOrder", mUpdateOrder);
 }

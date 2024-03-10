@@ -20,6 +20,8 @@ public:
 	unsigned int GetNumIndices() const { return mNumIndices; }
 	unsigned int GetNumVerts() const { return mNumVerts; }
 
+	static unsigned int GetVertexSize(VertexArray::Layout layout);
+
 private:
 	// How many vertices in the vertex buffer
 	unsigned int mNumVerts;

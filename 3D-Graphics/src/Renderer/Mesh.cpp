@@ -8,8 +8,12 @@
 #include "SDL/SDL_log.h"
 #include "GameProgCpp/Math.h"
 
+#include "../LevelLoader.h"
+
 #include <fstream>
-#include <sstream>
+#include <iostream>
+
+const std::string meshExtension = ".umesh";
 
 namespace
 {
@@ -17,6 +21,25 @@ namespace
 	{
 		float f;
 		uint8_t b[4];
+	};
+
+	const int BinaryVersion = 1;
+	struct MeshBinHeader
+	{
+		// Signature for file type
+		char mSignature[4] = { 'G', 'M', 'S', 'H' };
+		// Version
+		uint32_t mVersion = BinaryVersion;
+		// Vertex layout type
+		VertexArray::Layout mLayout = VertexArray::PosNormTex;
+		// Info about how many of each we have
+		uint32_t mNumTextures = 0;
+		uint32_t mNumVerts = 0;
+		uint32_t mNumIndices = 0;
+		// Box/radius of mesh, used for collision
+		AxisAlignedBoundingBox mBox{ Vector3::Zero, Vector3::Zero };
+		float mRadius = 0.0f;
+		float mSpecPower = 100.0f;
 	};
 }
 
@@ -34,23 +57,18 @@ Mesh::~Mesh()
 
 bool Mesh::Load(const std::string& fileName, Renderer* renderer)
 {
-	std::ifstream file(fileName);
-	if (!file.is_open())
+	mFileName = fileName;
+
+	// Try loading the binary file first
+	if (LoadBinary(fileName + meshExtension, renderer))
 	{
-		SDL_Log("File not found: Mesh %s", fileName.c_str());
-		return false;
+		return true;
 	}
 
-	std::stringstream fileStream;
-	fileStream << file.rdbuf();
-	std::string contents = fileStream.str();
-	rapidjson::StringStream jsonStr(contents.c_str());
 	rapidjson::Document doc;
-	doc.ParseStream(jsonStr);
-
-	if (!doc.IsObject())
+	if (!LevelLoader::LoadJSON(fileName, doc))
 	{
-		SDL_Log("Mesh %s is not valid json", fileName.c_str());
+		SDL_Log("Failed to load mesh %s", fileName.c_str());
 		return false;
 	}
 
@@ -87,20 +105,17 @@ bool Mesh::Load(const std::string& fileName, Renderer* renderer)
 
 	mSpecPower = static_cast<float>(doc["specularPower"].GetDouble());
 
+	std::vector<std::string> textureNames;
 	for (rapidjson::SizeType i = 0; i < textures.Size(); i++)
 	{
 		// Is this texture already loaded?
 		std::string texName = textures[i].GetString();
+		textureNames.emplace_back(texName);
 		Texture* t = renderer->GetTexture(texName);
 		if (t == nullptr)
 		{
-			// Try loading the texture
-			t = renderer->GetTexture(texName);
-			if (t == nullptr)
-			{
-				// If it's still null, just use the default texture
-				t = renderer->GetTexture("Assets/Default.png");
-			}
+			// If it's null, use the default texture
+			t = renderer->GetTexture("Assets/Default.png");
 		}
 		mTextures.emplace_back(t);
 	}
@@ -197,14 +212,16 @@ bool Mesh::Load(const std::string& fileName, Renderer* renderer)
 	}
 
 	// Now create a vertex array
-	mVertexArray = new VertexArray(
-		vertices.data(),
-		static_cast<unsigned>(vertices.size()) / vertSize,
-		layout, 
-		indices.data(), 
-		static_cast<unsigned>(indices.size())
-	);
+	unsigned int numVerts = static_cast<unsigned>(vertices.size()) / vertSize;
+	mVertexArray = new VertexArray(vertices.data(), numVerts,
+		layout, indices.data(), static_cast<unsigned>(indices.size()));
 
+	// Save the binary mesh
+	SaveBinary(fileName + meshExtension, vertices.data(),
+		numVerts, layout, indices.data(),
+		static_cast<unsigned>(indices.size()),
+		textureNames, mBox, mRadius,
+		mSpecPower);
 	return true;
 }
 
@@ -225,3 +242,121 @@ Texture* Mesh::GetTexture(size_t index)
 		return nullptr;
 	}
 }
+
+void Mesh::SaveBinary(const std::string& fileName, const void* verts,
+	uint32_t numVerts, VertexArray::Layout layout,
+	const uint32_t* indices, uint32_t numIndices,
+	const std::vector<std::string>& textureNames,
+	const AxisAlignedBoundingBox& box, float radius,
+	float specPower)
+{
+	// Create header struct
+	MeshBinHeader header;
+	header.mLayout = layout;
+	header.mNumTextures =
+		static_cast<unsigned>(textureNames.size());
+	header.mNumVerts = numVerts;
+	header.mNumIndices = numIndices;
+	header.mBox = box;
+	header.mRadius = radius;
+
+	// Open binary file for writing
+	std::ofstream outFile(fileName, std::ios::out
+		| std::ios::binary);
+	if (outFile.is_open())
+	{
+		// Write the header
+		outFile.write(reinterpret_cast<char*>(&header), sizeof(header));
+
+		// For each texture, we need to write the size of the name
+		// followed by the string (null-terminated)
+		for (const auto& tex : textureNames)
+		{
+			// (Assume file names won't have more than 32k characters)
+			uint16_t nameSize = static_cast<uint16_t>(tex.length()) + 1;
+			outFile.write(reinterpret_cast<char*>(&nameSize), sizeof(nameSize));
+			outFile.write(tex.c_str(), nameSize - 1);
+			outFile.write("\0", 1);
+		}
+
+		// Figure out number of bytes for each vertex, based on layout
+		unsigned vertexSize = VertexArray::GetVertexSize(layout);
+		// Write vertices
+		outFile.write(reinterpret_cast<const char*>(verts),
+			numVerts * vertexSize);
+		// Write indices
+		outFile.write(reinterpret_cast<const char*>(indices),
+			numIndices * sizeof(uint32_t));
+	}
+}
+
+bool Mesh::LoadBinary(const std::string& fileName, Renderer* renderer)
+{
+	std::ifstream inFile(fileName, std::ios::in |
+		std::ios::binary);
+	if (inFile.is_open())
+	{
+		// Read in header
+		MeshBinHeader header;
+		inFile.read(reinterpret_cast<char*>(&header), sizeof(header));
+
+		// Validate the header signature and version
+		char* sig = header.mSignature;
+		if (sig[0] != 'G' || sig[1] != 'M' || sig[2] != 'S' ||
+			sig[3] != 'H' || header.mVersion != BinaryVersion)
+		{
+			return false;
+		}
+
+		// Read in the texture file names
+		for (uint32_t i = 0; i < header.mNumTextures; i++)
+		{
+			// Get the file name size
+			uint16_t nameSize = 0;
+			inFile.read(reinterpret_cast<char*>(&nameSize), sizeof(nameSize));
+
+			// Make a buffer of this size
+			char* texName = new char[nameSize];
+			// Read in the texture name
+			inFile.read(texName, nameSize);
+
+			// Get this texture
+			Texture* t = renderer->GetTexture(texName);
+			if (t == nullptr)
+			{
+				// If it's null, use the default texture
+				t = renderer->GetTexture("Assets/Default.png");
+			}
+			mTextures.emplace_back(t);
+
+			delete[] texName;
+		}
+
+		// Now read in the vertices
+		unsigned vertexSize = VertexArray::GetVertexSize(header.mLayout);
+		char* verts = new char[header.mNumVerts * vertexSize];
+		inFile.read(verts, header.mNumVerts * vertexSize);
+
+		// Now read in the indices
+		uint32_t* indices = new uint32_t[header.mNumIndices];
+		inFile.read(reinterpret_cast<char*>(indices),
+			header.mNumIndices * sizeof(uint32_t));
+
+		// Now create the vertex array
+		mVertexArray = new VertexArray(verts, header.mNumVerts,
+			header.mLayout, indices, header.mNumIndices);
+
+		// Cleanup memory
+		delete[] verts;
+		delete[] indices;
+
+		// Set mBox/mRadius/specular from header
+		mBox = header.mBox;
+		mRadius = header.mRadius;
+		mSpecPower = header.mSpecPower;
+
+		return true;
+	}
+	return false;
+}
+

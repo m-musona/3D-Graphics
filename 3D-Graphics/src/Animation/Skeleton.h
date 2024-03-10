@@ -23,6 +23,7 @@ public:
 	const Bone& GetBone(size_t idx) const { return mBones[idx]; }
 	const std::vector<Bone>& GetBones() const { return mBones; }
 	const std::vector<Matrix4>& GetGlobalInvBindPoses() const { return mGlobalInvBindPoses; }
+	const std::string& GetFileName() const { return mFileName; }
 
 protected:
 	// Called automatically when the skeleton is loaded
@@ -35,4 +36,5 @@ private:
 	std::vector<Bone> mBones;
 	// The global inverse bind poses for each bone
 	std::vector<Matrix4> mGlobalInvBindPoses;
+	std::string mFileName;
 };

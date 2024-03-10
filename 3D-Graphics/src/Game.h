@@ -32,7 +32,8 @@ public:
 	const std::vector<class UIScreen*>& GetUIStack() { return mUIStack; }
 	void PushUI(class UIScreen* screen);
 	
-	class FPSActor* GetPlayer() { return mFPSActor; }
+	//class FPSActor* GetPlayer() { return mFPSActor; }
+	class FollowActor* GetPlayer() { return mFollowActor; }
 	
 	enum GameState
 	{
@@ -52,6 +53,9 @@ public:
 	class Skeleton* GetSkeleton(const std::string& fileName);
 
 	class Animation* GetAnimation(const std::string& fileName);
+
+	const std::vector<class Actor*>& GetActors() const { return mActors; }
+	void SetFollowActor(class FollowActor* actor) { mFollowActor = actor; }
 
 	// Game-specific
 	void AddPlane(class PlaneActor* plane);

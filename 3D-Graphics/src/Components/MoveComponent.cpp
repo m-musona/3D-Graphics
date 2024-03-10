@@ -1,5 +1,7 @@
 #include "MoveComponent.h"
+
 #include "../Actor.h"
+#include "../LevelLoader.h"
 
 MoveComponent::MoveComponent(Actor* owner, int updateOrder)
 	: Component(owner, updateOrder),
@@ -35,4 +37,22 @@ void MoveComponent::Update(float deltatime)
 
 		mOwner->SetPosition(position);
 	}
+}
+
+void MoveComponent::LoadProperties(const rapidjson::Value& inObj)
+{
+	Component::LoadProperties(inObj);
+
+	JsonHelper::GetFloat(inObj, "angularSpeed", mAngularSpeed);
+	JsonHelper::GetFloat(inObj, "forwardSpeed", mForwardSpeed);
+	JsonHelper::GetFloat(inObj, "strafeSpeed", mStrafeSpeed);
+}
+
+void MoveComponent::SaveProperties(rapidjson::Document::AllocatorType& alloc, rapidjson::Value& inObj) const
+{
+	Component::SaveProperties(alloc, inObj);
+
+	JsonHelper::AddFloat(alloc, inObj, "angularSpeed", mAngularSpeed);
+	JsonHelper::AddFloat(alloc, inObj, "forwardSpeed", mForwardSpeed);
+	JsonHelper::AddFloat(alloc, inObj, "strafeSpeed", mStrafeSpeed);
 }

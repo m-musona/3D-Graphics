@@ -2,6 +2,7 @@
 
 #include "../Actor.h"
 #include "../Game.h"
+#include "../LevelLoader.h"
 
 #include "../Renderer/Shader.h"
 #include "../Renderer/Renderer.h"
@@ -62,3 +63,31 @@ void SpriteComponent::SetTexture(Texture* texture)
 	mTextureWidth = texture->GetWidth();
 	mTextureHeight = texture->GetHeight();
 }
+
+void SpriteComponent::LoadProperties(const rapidjson::Value& inObj)
+{
+	Component::LoadProperties(inObj);
+
+	std::string texFile;
+	if (JsonHelper::GetString(inObj, "textureFile", texFile))
+	{
+		SetTexture(mOwner->GetGame()->GetRenderer()->GetTexture(texFile));
+	}
+
+	JsonHelper::GetInt(inObj, "drawOrder", mDrawOrder);
+	JsonHelper::GetBool(inObj, "visible", mVisible);
+}
+
+void SpriteComponent::SaveProperties(rapidjson::Document::AllocatorType& alloc, rapidjson::Value& inObj) const
+{
+	Component::SaveProperties(alloc, inObj);
+
+	if (mTexture)
+	{
+		JsonHelper::AddString(alloc, inObj, "textureFile", mTexture->GetFileName());
+	}
+
+	JsonHelper::AddInt(alloc, inObj, "drawOrder", mDrawOrder);
+	JsonHelper::AddBool(alloc, inObj, "visible", mVisible);
+}
+

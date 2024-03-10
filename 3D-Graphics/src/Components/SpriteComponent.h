@@ -20,6 +20,13 @@ public:
 
 	void SetVisible(bool visible) { mVisible = visible; }
 	bool GetVisible() const { return mVisible; }
+
+	TypeID GetType() const override { return TSpriteComponent; }
+
+	void LoadProperties(const rapidjson::Value& inObj) override;
+	void SaveProperties(rapidjson::Document::AllocatorType& alloc,
+		rapidjson::Value& inObj) const override;
+
 protected:
 	// Texture to draw
 	class Texture* mTexture;

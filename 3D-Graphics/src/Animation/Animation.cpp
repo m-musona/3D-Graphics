@@ -8,6 +8,7 @@
 
 bool Animation::Load(const std::string& fileName)
 {
+	mFileName = fileName;
 	std::ifstream file(fileName);
 	if (!file.is_open())
 	{

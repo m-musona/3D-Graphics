@@ -19,6 +19,12 @@ public:
 	// Play an animation. Returns the length of the animation
 	float PlayAnimation(const class Animation* anim, float playRate = 1.0f);
 
+	TypeID GetType() const override { return TSkeletalMeshComponent; }
+
+	void LoadProperties(const rapidjson::Value& inObj) override;
+	void SaveProperties(rapidjson::Document::AllocatorType& alloc,
+		rapidjson::Value& inObj) const override;
+
 private:
 	void ComputeMatrixPalette();
 

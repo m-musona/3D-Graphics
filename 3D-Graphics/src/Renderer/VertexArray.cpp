@@ -124,3 +124,13 @@ void VertexArray::SetActive()
 	glBindVertexArray(mVertexArray);
 }
 
+unsigned int VertexArray::GetVertexSize(VertexArray::Layout layout)
+{
+	unsigned vertexSize = 8 * sizeof(float);
+	if (layout == PosNormSkinTex)
+	{
+		vertexSize = 8 * sizeof(float) + 8 * sizeof(char);
+	}
+	return vertexSize;
+}
+

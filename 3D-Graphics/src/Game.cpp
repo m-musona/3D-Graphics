@@ -4,6 +4,7 @@
 #include "PhysWorld.h"
 #include "Actor.h"
 #include "UIScreen.h"
+#include "LevelLoader.h"
 #include "WindowSize.h"
 
 #include "Renderer/Renderer.h"
@@ -14,6 +15,7 @@
 #include "UI/PauseMenu.h"
 
 #include "Components/MeshComponent.h"
+#include "Components/PointLightComponent.h"
 
 #include "Actors/FPSActor.h"
 #include "Actors/PlaneActor.h"
@@ -36,6 +38,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <iostream>
 
 Game::Game()
 :mRenderer(nullptr)
@@ -253,6 +256,12 @@ void Game::HandleKeyPress(int key)
 		LoadText("Assets/Russian.gptext");
 		break;
 	}
+	case 't':
+	{
+		// Save level
+		LevelLoader::SaveLevel(this, "Assets/Saved.gplevel");
+		break;
+	}
 	case SDL_BUTTON_LEFT:
 	{
 		// Fire weapon
@@ -353,56 +362,6 @@ void Game::LoadData()
 	// Load English text
 	LoadText("Assets/English.gptext");
 
-	// Create actors
-	Actor* a = nullptr;
-	Quaternion q;
-	//MeshComponent* mc = nullptr;
-
-	// Setup floor
-	const float start = -1250.0f;
-	const float size = 250.0f;
-	for (int i = 0; i < 10; i++)
-	{
-		for (int j = 0; j < 10; j++)
-		{
-			a = new PlaneActor(this);
-			a->SetPosition(Vector3(start + i * size, start + j * size, -100.0f));
-		}
-	}
-
-	// Left/right walls
-	q = Quaternion(Vector3::UnitX, Math::PiOver2);
-	for (int i = 0; i < 10; i++)
-	{
-		a = new PlaneActor(this);
-		a->SetPosition(Vector3(start + i * size, start - size, 0.0f));
-		a->SetRotation(q);
-		
-		a = new PlaneActor(this);
-		a->SetPosition(Vector3(start + i * size, -start + size, 0.0f));
-		a->SetRotation(q);
-	}
-
-	q = Quaternion::Concatenate(q, Quaternion(Vector3::UnitZ, Math::PiOver2));
-	// Forward/back walls
-	for (int i = 0; i < 10; i++)
-	{
-		a = new PlaneActor(this);
-		a->SetPosition(Vector3(start - size, start + i * size, 0.0f));
-		a->SetRotation(q);
-
-		a = new PlaneActor(this);
-		a->SetPosition(Vector3(-start + size, start + i * size, 0.0f));
-		a->SetRotation(q);
-	}
-
-	// Setup lights
-	mRenderer->SetAmbientLight(Vector3(0.2f, 0.2f, 0.2f));
-	DirectionalLight& dir = mRenderer->GetDirectionalLight();
-	dir.mDirection = Vector3(0.0f, -0.707f, -0.707f);
-	dir.mDiffuseColor = Vector3(0.78f, 0.88f, 1.0f);
-	dir.mSpecColor = Vector3(0.8f, 0.8f, 0.8f);
-
 	// Sphere actor
 	mSphere = new Sphere(this);
 	// Cube actor
@@ -410,6 +369,9 @@ void Game::LoadData()
 
 	// UI elements
 	mHUD = new HUD(this);
+
+	// Load the level from file
+	LevelLoader::LoadLevel(this, "Assets/Level3.gplevel");
 	
 	// Start music
 	mMusicEvent = mAudioSystem->PlayEvent("event:/Music");
@@ -421,27 +383,11 @@ void Game::LoadData()
 
 	// Different camera actors
 	mFPSActor = new FPSActor(this);
-	mFollowActor = new FollowActor(this);
+	// mFollowActor = new FollowActor(this);
 	mOrbitActor = new OrbitActor(this);
 	mSplineActor = new SplineActor(this);
 
 	ChangeCamera('4');
-
-	// Create target actors
-	a = new TargetActor(this);
-	a->SetPosition(Vector3(1450.0f, 0.0f, 100.0f));
-	a = new TargetActor(this);
-	a->SetPosition(Vector3(1450.0f, 0.0f, 400.0f));
-	a = new TargetActor(this);
-	a->SetPosition(Vector3(1450.0f, -500.0f, 200.0f));
-	a = new TargetActor(this);
-	a->SetPosition(Vector3(1450.0f, 500.0f, 200.0f));
-	a = new TargetActor(this);
-	a->SetPosition(Vector3(0.0f, -1450.0f, 200.0f));
-	a->SetRotation(Quaternion(Vector3::UnitZ, Math::PiOver2));
-	a = new TargetActor(this);
-	a->SetPosition(Vector3(0.0f, 1450.0f, 200.0f));
-	a->SetRotation(Quaternion(Vector3::UnitZ, -Math::PiOver2));
 }
 
 void Game::UnloadData()

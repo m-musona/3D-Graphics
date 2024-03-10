@@ -4,10 +4,13 @@
 #include "../Components/MoveComponent.h"
 
 #include "../Game.h"
+#include "../LevelLoader.h"
+
 #include "../Renderer/Renderer.h"
 #include "../Renderer/Mesh.h"
 
 #include "../Cameras/FollowCamera.h"
+#include "../Cameras/MirrorCamera.h"
 
 #include "../Animation/Animation.h"
 #include "../Animation/Skeleton.h"
@@ -26,6 +29,12 @@ FollowActor::FollowActor(Game* game)
 	mMoveComp = new MoveComponent(this);
 	mCameraComp = new FollowCamera(this);
 	mCameraComp->SnapToIdeal();
+
+	// Add a component for the mirror camera
+	MirrorCamera* mirror = new MirrorCamera(this);
+	mirror->SnapToIdeal();
+
+	game->SetFollowActor(this);
 }
 
 void FollowActor::ActorInput(const uint8_t* keys)
@@ -80,4 +89,16 @@ void FollowActor::ActorInput(const uint8_t* keys)
 void FollowActor::SetVisible(bool visible)
 {
 	mMeshComp->SetVisible(visible);
+}
+
+void FollowActor::LoadProperties(const rapidjson::Value& inObj)
+{
+	Actor::LoadProperties(inObj);
+	JsonHelper::GetBool(inObj, "moving", mMoving);
+}
+
+void FollowActor::SaveProperties(rapidjson::Document::AllocatorType& alloc, rapidjson::Value& inObj) const
+{
+	Actor::SaveProperties(alloc, inObj);
+	JsonHelper::AddBool(alloc, inObj, "moving", mMoving);
 }

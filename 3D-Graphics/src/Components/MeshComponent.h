@@ -22,6 +22,12 @@ public:
 
 	bool GetIsSkeletal() const { return mIsSkeletal; }
 
+	TypeID GetType() const override { return TMeshComponent; }
+
+	void LoadProperties(const rapidjson::Value& inObj) override;
+	void SaveProperties(rapidjson::Document::AllocatorType& alloc,
+		rapidjson::Value& inObj) const override;
+
 protected:
 	class Mesh* mMesh;
 	size_t mTextureIndex;

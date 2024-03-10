@@ -38,11 +38,15 @@ public:
 	class Texture* GetTexture(const std::string& fileName);
 	class Mesh* GetMesh(const std::string& fileName);
 
+	void AddPointLight(class PointLightComponent* light);
+	void RemovePointLight(class PointLightComponent* light);
+
 	void AddMeshComp(class MeshComponent* mesh);
 	void RemoveMeshComp(class MeshComponent* mesh);
 
 	void SetViewMatrix(const Matrix4& view) { mView = view; }
 
+	const Vector3& GetAmbientLight() const { return mAmbientLight; }
 	void SetAmbientLight(const Vector3& ambient) { mAmbientLight = ambient; }
 	DirectionalLight& GetDirectionalLight() { return mDirLight; }
 
@@ -58,10 +62,23 @@ public:
 	float GetScreenWidth() const { return mScreenWidth; }
 	float GetScreenHeight() const { return mScreenHeight; }
 
+	void SetMirrorView(const Matrix4& view) { mMirrorView = view; }
+	class Texture* GetMirrorTexture() { return mMirrorTexture; }
+	class GBuffer* GetGBuffer() { return mGBuffer; }
+
 private:
+	// Chapter 14 additions
+	void Draw3DScene(unsigned int framebuffer, const Matrix4& view, const Matrix4& proj,
+		float viewPortScale = 1.0f, bool lit = true);
+
+	bool CreateMirrorTarget();
+	void DrawFromGBuffer();
+	//void DrawFromGBuffer();
+	// End chapter 14 additions
+
 	bool LoadShaders();
 	void CreateSpriteVerts();
-	void SetLightUniforms(class Shader* shader);
+	void SetLightUniforms(class Shader* shader, const Matrix4& view);
 
 	// Screen Height/Width
 	float mScreenHeight;
@@ -105,4 +122,18 @@ private:
 
 	// Game
 	class Game* mGame;
+
+	// Framebuffer object for the mirror
+	unsigned int mMirrorBuffer;
+	// Texture for the mirror
+	class Texture* mMirrorTexture;
+	Matrix4 mMirrorView;
+
+	class GBuffer* mGBuffer;
+
+	// GBuffer shader
+	class Shader* mGGlobalShader;
+	class Shader* mGPointLightShader;
+	std::vector<class PointLightComponent*> mPointLights;
+	class Mesh* mPointLightMesh;
 };

@@ -4,10 +4,12 @@
 #include "Mesh.h"
 #include "Shader.h"
 #include "VertexArray.h"
+#include "GBuffer.h"
 
 #include "../Components/SpriteComponent.h"
 #include "../Components/MeshComponent.h"
 #include "../Components/SkeletalMeshComponent.h"
+#include "../Components/PointLightComponent.h"
 
 #include "../UIScreen.h"
 #include "../Game.h"
@@ -21,7 +23,12 @@ Renderer::Renderer(Game* game)
 	:mGame(game),
 	mSpriteShader(nullptr),
 	mMeshShader(nullptr),
-	mSkinnedShader(nullptr)
+	mSkinnedShader(nullptr),
+	mMirrorBuffer(0),
+	mMirrorTexture(nullptr),
+	mGBuffer(nullptr),
+	mGGlobalShader(nullptr),
+	mGPointLightShader(nullptr)
 {
 }
 
@@ -105,11 +112,53 @@ bool Renderer::Initialize(float screenWidth, float screenHeight)
 	// Create quad for drawing Sprites
 	CreateSpriteVerts();
 
+	// Create render target for mirror
+	if (!CreateMirrorTarget())
+	{
+		SDL_Log("Failed to create render target for mirror.");
+		return false;
+	}
+
+	// Create G-buffer
+	mGBuffer = new GBuffer();
+	int width = static_cast<int>(mScreenWidth);
+	int height = static_cast<int>(mScreenHeight);
+	if (!mGBuffer->Create(width, height))
+	{
+		SDL_Log("Failed to create G-buffer.");
+		return false;
+	}
+
+	// Load point light mesh
+	mPointLightMesh = GetMesh("Assets/PointLight.gpmesh");
+
 	return true;
 }
 
+
 void Renderer::Shutdown()
 {
+	// Get rid of any render target textures, if they exist
+	if (mMirrorTexture != nullptr)
+	{
+		glDeleteFramebuffers(1, &mMirrorBuffer);
+		mMirrorTexture->Unload();
+		delete mMirrorTexture;
+	}
+
+	// Get rid of G-buffer
+	if (mGBuffer != nullptr)
+	{
+		mGBuffer->Destroy();
+		delete mGBuffer;
+	}
+
+	// Delete point lights
+	while (!mPointLights.empty())
+	{
+		delete mPointLights.back();
+	}
+
 	delete mSpriteVerts;
 	mSpriteShader->Unload();
 	delete mSpriteShader;
@@ -144,45 +193,28 @@ void Renderer::Draw()
 {
 	// Step 1: Clear the back buffer to a color
 
-	// Set clear color to black
-	glClearColor(0.0f /* R */, 0.0f /* G */, 0.0f /* B */, 1.0f /* A */);
-	// Clear back buffer to current draw color
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//// Set clear color to black
+	//glClearColor(0.0f /* R */, 0.0f /* G */, 0.0f /* B */, 1.0f /* A */);
+	//// Clear back buffer to current draw color
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Step 2: Draw the entire game scene
 
-	// Enable depth buffering/disable alpha blend
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
-	// Set the basic mesh shader active
-	mMeshShader->SetActive();
-	// Update view-projrction matrix
-	mMeshShader->SetMatrixUniform("uViewProj", mView * mProjection);
-	// Update lighting uniforms
-	SetLightUniforms(mMeshShader);
+	// Draw to the mirror texture first (viewport scale of 0.25)
+	Draw3DScene(mMirrorBuffer, mMirrorView, mProjection, 0.25f);
 
-	for (auto mc : mMeshComps)
-	{
-		if (mc->GetVisible())
-		{
-			mc->Draw(mMeshShader);
-		}
-	}
+	// Render to non Gbuffer
+	// Draw3DScene(0, mView, mProjection);
 
-	// Draw any skinned meshes now
-	mSkinnedShader->SetActive();
-	// Update view-projection matrix
-	mSkinnedShader->SetMatrixUniform("uViewProj", mView * mProjection);
-	// Update lighting uniforms
-	SetLightUniforms(mSkinnedShader);
-	for (auto sk : mSkeletalMeshes)
-	{
-		if (sk->GetVisible())
-		{
-			sk->Draw(mSkinnedShader);
-		}
-	}
+	// Now draw the normal 3D scene to the default framebufffer
+	Draw3DScene(mGBuffer->GetBufferID(), mView, mProjection, 1.0f, false);
+	// Set the frame buffer back to zero (screen's frame buffer)
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	// Draw from the GBuffer
+	DrawFromGBuffer();
 
+
+	// Draw all sprite components
 	// Disable depth buffering
 	glDisable(GL_DEPTH_TEST);
 	// Enable alpha blending on the color buffer
@@ -326,20 +358,162 @@ void Renderer::RemoveMeshComp(MeshComponent* mesh)
 	}
 }
 
-void Renderer::SetLightUniforms(Shader* shader)
+void Renderer::AddPointLight(PointLightComponent* light)
 {
-	// Camera position is from inverted view
-	Matrix4 invView = mView;
-	invView.Invert();
-	shader->SetVectorUniform("uCameraPos", invView.GetTranslation());
+	mPointLights.emplace_back(light);
+}
 
-	// Ambient Light
-	shader->SetVectorUniform("uAmbientLight", mAmbientLight);
+void Renderer::RemovePointLight(PointLightComponent* light)
+{
+	auto iter = std::find(mPointLights.begin(), mPointLights.end(), light);
+	mPointLights.erase(iter);
+}
 
-	// Directional light
-	shader->SetVectorUniform("uDirLight.mDirection", mDirLight.mDirection);
-	shader->SetVectorUniform("uDirLight.mDiffuseColor", mDirLight.mDiffuseColor);
-	shader->SetVectorUniform("uDirLight.mSpecColor", mDirLight.mSpecColor);
+void Renderer::Draw3DScene(unsigned int framebuffer, const Matrix4& view, const Matrix4& proj, float viewPortScale, bool lit)
+{
+	// Set the current frame buffer
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
+	// Set viewport size based on scale
+	glViewport(0, 0,
+		static_cast<int>(mScreenWidth * viewPortScale),
+		static_cast<int>(mScreenHeight * viewPortScale)
+	);
+
+	// Set clear color to black
+	glClearColor(0.0f /* R */, 0.0f /* G */, 0.0f /* B */, 1.0f /* A */);
+	glDepthMask(GL_TRUE);
+	// Clear back buffer to current draw color
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// Enable depth buffering/disable alpha blend
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+	// Set the basic mesh shader active
+	mMeshShader->SetActive();
+	// Update view-projrction matrix
+	mMeshShader->SetMatrixUniform("uViewProj", mView * mProjection);
+	// Update lighting uniforms
+	if (lit)
+	{
+		SetLightUniforms(mMeshShader, view);
+	}
+	for (auto mc : mMeshComps)
+	{
+		if (mc->GetVisible())
+		{
+			mc->Draw(mMeshShader);
+		}
+	}
+
+	// Draw any skinned meshes now
+	mSkinnedShader->SetActive();
+	// Update view-projection matrix
+	mSkinnedShader->SetMatrixUniform("uViewProj", mView * mProjection);
+	// Update lighting uniforms
+	if (lit)
+	{
+		SetLightUniforms(mSkinnedShader, view);
+	}
+	for (auto sk : mSkeletalMeshes)
+	{
+		if (sk->GetVisible())
+		{
+			sk->Draw(mSkinnedShader);
+		}
+	}
+}
+
+
+bool Renderer::CreateMirrorTarget()
+{
+	int width = static_cast<int>(mScreenWidth) / 4;
+	int height = static_cast<int>(mScreenHeight) / 4;
+
+	// Generate a frame buffer for the mirror texture
+	glGenFramebuffers(1, &mMirrorBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, mMirrorBuffer);
+
+	// Create the texture we'll use for rendering
+	mMirrorTexture = new Texture();
+	mMirrorTexture->CreateForRendering(width, height, GL_RGB);
+
+	// Add a depth buffer to this target
+	GLuint depthBuffer;
+	glGenRenderbuffers(1, &depthBuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+
+	// Attach mirror texture as the output target for the frame buffer
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, mMirrorTexture->GetTextureID(), 0);
+
+	// Set the list of buffers to draw to for this frame buffer
+	GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
+	glDrawBuffers(1, drawBuffers);
+
+	// Make sure everything worked
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		// If it didn't work, delete the framebuffer,
+		// unload/delete the texture and return false
+		glDeleteFramebuffers(1, &mMirrorBuffer);
+		mMirrorTexture->Unload();
+		delete mMirrorTexture;
+		mMirrorTexture = nullptr;
+		return false;
+	}
+	return true;
+}
+
+
+void Renderer::DrawFromGBuffer()
+{
+	// Disable depth testing for the global lighting pass
+	glDisable(GL_DEPTH_TEST);
+	// Activate global G-buffer shader
+	mGGlobalShader->SetActive();
+	// Activate sprite verts quad
+	mSpriteVerts->SetActive();
+	// Set the G-buffer textures to sample
+	mGBuffer->SetTexturesActive();
+	// Set the lighting uniforms
+	SetLightUniforms(mGGlobalShader, mView);
+	// Draw the triangles
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+	// Copy depth buffer from G-buffer to default frame buffer
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, mGBuffer->GetBufferID());
+	int width = static_cast<int>(mScreenWidth);
+	int height = static_cast<int>(mScreenHeight);
+	glBlitFramebuffer(0, 0, width, height,
+		0, 0, width, height,
+		GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+	// Enable depth test, but disable writes to depth buffer
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_FALSE);
+
+	// Set the point light shader and mesh as active
+	mGPointLightShader->SetActive();
+	mPointLightMesh->GetVertexArray()->SetActive();
+
+	// Set the view-projection matrix
+	mGPointLightShader->SetMatrixUniform("uViewProj",
+		mView * mProjection);
+
+	// Set the G-buffer textures for sampling
+	mGBuffer->SetTexturesActive();
+
+	// The point light color should add to existing color
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+
+	// Draw the point lights
+	for (PointLightComponent* p : mPointLights)
+	{
+		p->Draw(mGPointLightShader, mPointLightMesh);
+	}
 }
 
 bool Renderer::LoadShaders()
@@ -351,16 +525,16 @@ bool Renderer::LoadShaders()
 		return false;
 	}
 
-	mSpriteShader->SetActive();
+	mSpriteShader->SetActive();;
 
 	// Set the view-projection matrix
-	Matrix4 viewProj = Matrix4::CreateSimpleViewProj(mScreenWidth, mScreenHeight);
-	mSpriteShader->SetMatrixUniform("uViewProj", viewProj);
+	Matrix4 spriteViewProj = Matrix4::CreateSimpleViewProj(mScreenWidth, mScreenHeight);
+	mSpriteShader->SetMatrixUniform("uViewProj", spriteViewProj);
 
 	// Create basic mesh shader
 	mMeshShader = new Shader();
 
-	if (!mMeshShader->Load("Shaders/Phong.vert", "Shaders/Phong.frag"))
+	if (!mMeshShader->Load("Shaders/Phong.vert", "Shaders/GBufferWrite.frag"))
 	{
 		return false;
 	}
@@ -386,7 +560,7 @@ bool Renderer::LoadShaders()
 
 	// Create skinned shader
 	mSkinnedShader = new Shader();
-	if (!mSkinnedShader->Load("Shaders/Skinned.vert", "Shaders/Phong.frag"))
+	if (!mSkinnedShader->Load("Shaders/Skinned.vert", "Shaders/GBufferWrite.frag"))
 	{
 		return false;
 	}
@@ -396,12 +570,45 @@ bool Renderer::LoadShaders()
 	mView = Matrix4::CreateLookAt(Vector3::Zero, Vector3::UnitX, Vector3::UnitZ);
 	mProjection = Matrix4::CreatePerspectiveFOV(
 		Math::ToRadians(70.0f),
-		mScreenWidth, 
-		mScreenHeight, 
-		10.0f, 
+		mScreenWidth,
+		mScreenHeight,
+		10.0f,
 		10000.0f
 	);
 	mSkinnedShader->SetMatrixUniform("uViewProj", mView * mProjection);
+
+	// Create shader for drawing from GBuffer (global lighting)
+	mGGlobalShader = new Shader();
+	if (!mGGlobalShader->Load("Shaders/GBufferGlobal.vert", "Shaders/GBufferGlobal.frag"))
+	{
+		return false;
+	}
+	// For the GBuffer, we need to associate each sampler with an index
+	mGGlobalShader->SetActive();
+	mGGlobalShader->SetIntUniform("uGDiffuse", 0);
+	mGGlobalShader->SetIntUniform("uGNormal", 1);
+	mGGlobalShader->SetIntUniform("uGWorldPos", 2);
+	// The view projection is just the sprite one
+	mGGlobalShader->SetMatrixUniform("uViewProj", spriteViewProj);
+	// The world transform scales to the screen and flips y
+	Matrix4 gbufferWorld = Matrix4::CreateScale(mScreenWidth, -mScreenHeight,
+		1.0f);
+	mGGlobalShader->SetMatrixUniform("uWorldTransform", gbufferWorld);
+
+	// Create a shader for point lights from GBuffer
+	mGPointLightShader = new Shader();
+	if (!mGPointLightShader->Load("Shaders/BasicMesh.vert",
+		"Shaders/GBufferPointLight.frag"))
+	{
+		return false;
+	}
+	// Set sampler indices
+	mGPointLightShader->SetActive();
+	mGPointLightShader->SetIntUniform("uGDiffuse", 0);
+	mGPointLightShader->SetIntUniform("uGNormal", 1);
+	mGPointLightShader->SetIntUniform("uGWorldPos", 2);
+	mGPointLightShader->SetVector2Uniform("uScreenDimensions",
+		Vector2(mScreenWidth, mScreenHeight));
 
 	return true;
 }
@@ -423,6 +630,22 @@ void Renderer::CreateSpriteVerts()
 	};
 
 	mSpriteVerts = new VertexArray(vertices, 4, VertexArray::PosNormTex, indices, 6);
+}
+
+void Renderer::SetLightUniforms(Shader* shader, const Matrix4& view)
+{
+	// Camera position is from inverted view
+	Matrix4 invView = view;
+	invView.Invert();
+	shader->SetVectorUniform("uCameraPos", invView.GetTranslation());
+
+	// Ambient Light
+	shader->SetVectorUniform("uAmbientLight", mAmbientLight);
+
+	// Directional light
+	shader->SetVectorUniform("uDirLight.mDirection", mDirLight.mDirection);
+	shader->SetVectorUniform("uDirLight.mDiffuseColor", mDirLight.mDiffuseColor);
+	shader->SetVectorUniform("uDirLight.mSpecColor", mDirLight.mSpecColor);
 }
 
 Vector3 Renderer::Unproject(const Vector3& screenPoint) const

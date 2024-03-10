@@ -43,3 +43,15 @@ void BallActor::HitTarget()
 {
 	mAudioComp->PlayEvent("event:/Ding");
 }
+
+void BallActor::LoadProperties(const rapidjson::Value& inObj)
+{
+	Actor::LoadProperties(inObj);
+	//JsonHelper::GetFloat(inObj, "lifespan", mLifeSpan);
+}
+
+void BallActor::SaveProperties(rapidjson::Document::AllocatorType& alloc, rapidjson::Value& inObj) const
+{
+	Actor::SaveProperties(alloc, inObj);
+	// JsonHelper::AddFloat(alloc, inObj, "lifespan", mLifeSpan);
+}

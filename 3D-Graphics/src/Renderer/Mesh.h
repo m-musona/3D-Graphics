@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "../Collision.h"
+#include "VertexArray.h"
 
 class Mesh
 {
@@ -23,14 +24,27 @@ public:
 	// Get name of shader
 	const std::string& GetShaderName() const { return mShaderName; }
 
+	// Get file name
+	const std::string& GetFileName() const { return mFileName; }
+
 	// Get object space bounding sphere radius
-	float GetRadius() const { mRadius; }
+	float GetRadius() const { return mRadius; }
 
 	// Get object space bounding box
 	const AxisAlignedBoundingBox& GetBox() const { return mBox; }
 
 	// Get specular power of mesh
 	float GetSpecPower() const { return mSpecPower; }
+
+	// Save the mesh in binary format
+	void SaveBinary(const std::string& fileName, const void* verts,
+		uint32_t numVerts, VertexArray::Layout layout,
+		const uint32_t* indices, uint32_t numIndices,
+		const std::vector<std::string>& textureNames,
+		const AxisAlignedBoundingBox& box, float radius,
+		float specPower);
+	// Load in the mesh from binary format
+	bool LoadBinary(const std::string& fileName, class Renderer* renderer);
 
 private:
 	// AABB collision
@@ -44,6 +58,9 @@ private:
 
 	// Name of shader specified by mesh
 	std::string mShaderName;
+
+	// Name of mesh file
+	std::string mFileName;
 
 	// Stores object space bounding sphere radius
 	float mRadius;

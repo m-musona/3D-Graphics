@@ -14,6 +14,9 @@ public:
 
 	void SetPitchSpeed(float speed) { mPitchSpeed = speed; }
 	void SetYawSpeed(float speed) { mYawSpeed = speed; }
+
+	TypeID GetType() const override { return TOrbitCamera; }
+
 private:
 	// Offset from target
 	Vector3 mOffset;

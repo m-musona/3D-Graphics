@@ -23,12 +23,8 @@ Shader::~Shader()
 bool Shader::Load(const std::string& vertName, const std::string& fragName)
 {
 	// Compile vertex and pixel shaders
-	if (!CompileShader(vertName,
-		GL_VERTEX_SHADER,
-		mVertexShader) ||
-		!CompileShader(fragName,
-			GL_FRAGMENT_SHADER,
-			mFragShader))
+	if (!CompileShader(vertName, GL_VERTEX_SHADER, mVertexShader) ||
+		!CompileShader(fragName, GL_FRAGMENT_SHADER, mFragShader))
 	{
 		return false;
 	}
@@ -81,6 +77,13 @@ void Shader::SetVectorUniform(const char* name, const Vector3& vector)
 	glUniform3fv(loc, 1, vector.GetAsFloatPtr());
 }
 
+void Shader::SetVector2Uniform(const char* name, const Vector2& vector)
+{
+	GLuint loc = glGetUniformLocation(mShaderProgram, name);
+	// Send the vector data
+	glUniform2fv(loc, 1, vector.GetAsFloatPtr());
+}
+
 void Shader::SetMatrixUniforms(const char* name, Matrix4* matrices, unsigned count)
 {
 	GLuint loc = glGetUniformLocation(mShaderProgram, name);
@@ -94,6 +97,13 @@ void Shader::SetFloatUniform(const char* name, const float& value)
 	GLuint loc = glGetUniformLocation(mShaderProgram, name);
 	// Send the float data to the uniform
 	glUniform1f(loc, value);
+}
+
+void Shader::SetIntUniform(const char* name, int value)
+{
+	GLuint loc = glGetUniformLocation(mShaderProgram, name);
+	// Send the float data
+	glUniform1i(loc, value);
 }
 
 bool Shader::CompileShader(const std::string& fileName,

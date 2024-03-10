@@ -17,6 +17,12 @@ public:
 
 	void SetVisible(bool visible);
 	void FixCollisions();
+
+	void LoadProperties(const rapidjson::Value& inObj) override;
+	void SaveProperties(rapidjson::Document::AllocatorType& alloc,
+		rapidjson::Value& inObj) const override;
+
+	TypeID GetType() const override { return TFPSActor; }
 private:
 	class MoveComponent* mMoveComp;
 	class MeshComponent* mMeshComp;

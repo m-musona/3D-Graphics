@@ -222,3 +222,13 @@ void FPSActor::FixCollisions()
 		}
 	}
 }
+
+void FPSActor::LoadProperties(const rapidjson::Value& inObj)
+{
+	Actor::LoadProperties(inObj);
+}
+
+void FPSActor::SaveProperties(rapidjson::Document::AllocatorType& alloc, rapidjson::Value& inObj) const
+{
+	Actor::SaveProperties(alloc, inObj);
+}
